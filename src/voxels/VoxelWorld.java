@@ -14,12 +14,13 @@ import com.jme3.scene.shape.Cylinder;
 /**
  * Created by didyouloseyourdog on 8/10/14.
  */
-public class VoxelWorld extends SimpleApplication
-{
+public class VoxelWorld extends SimpleApplication {
     MaterialLibrarian materialLibrarian;
 
     @Override
-    public void simpleUpdate(float secondsPerFrame) {}
+    public void simpleUpdate(float secondsPerFrame) {
+    	
+    }
 
     @Override
     public void simpleInitApp() {
@@ -35,6 +36,7 @@ public class VoxelWorld extends SimpleApplication
         rootNode.attachChild(g);
         attachCoordinateAxes(Vector3f.ZERO);
     }
+    
     private void attachCoordinateAxes(Vector3f pos){
 		  Arrow arrow = new Arrow(Vector3f.UNIT_X);
 		  arrow.setLineWidth(4); // make arrow thicker
@@ -71,8 +73,7 @@ public class VoxelWorld extends SimpleApplication
         app.start(); // start the game
     }
 
-    public class MaterialLibrarian
-    {
+    public class MaterialLibrarian {
         private Material blockMaterial;
         private AssetManager _assetManager;
 
