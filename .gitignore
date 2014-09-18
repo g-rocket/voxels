@@ -49,3 +49,4 @@ Icon
 
 # Broken temperary / saving files created on some operating systems / programs
 *~
+/bin/
