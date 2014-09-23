@@ -2,18 +2,23 @@ package voxels;
 
 import voxels.map.Coord3;
 import voxels.map.Direction;
+import voxels.meshconstruction.BlockMeshUtil;
 import voxels.meshconstruction.MeshSet;
 
+import com.google.common.primitives.Ints;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.shape.*;
+import com.jme3.util.BufferUtils;
 
 /**
  * Created by didyouloseyourdog on 8/10/14.
@@ -30,7 +35,8 @@ public class VoxelWorld extends SimpleApplication {
     public void simpleInitApp() {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
-        makeADemoMeshAndAdditToTheRootNode();
+        //makeADemoMeshAndAdditToTheRootNode();
+        addTestBlockFace();
     }
 
     /*
