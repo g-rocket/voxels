@@ -3,7 +3,7 @@ package voxels.map;
 import com.jme3.math.Vector3f;
 
 public class Coord3 {
-	private int x,y,z;
+	public final int x,y,z;
 	
 	public Coord3(int x, int y, int z) {
 		this.x = x;

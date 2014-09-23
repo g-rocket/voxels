@@ -6,8 +6,8 @@ MaterialDef Colored Textured {
     }
 
     Technique {
-        VertexShader GLSL100:   MatDefs/BlockTexNuevo.vert
-        FragmentShader GLSL100: MatDefs/BlockTexNuevo.frag
+        VertexShader GLSL100:   BlockTexNuevo.vert
+        FragmentShader GLSL100: BlockTexNuevo.frag
 
         WorldParameters {
             WorldViewProjectionMatrix

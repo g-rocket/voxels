@@ -8,7 +8,13 @@ import voxels.map.Coord3;
 import voxels.map.Direction;
 
 public class BlockMeshUtil {
-	private static List<Vector2f> uvs = Arrays.asList(new Vector2f(0,0),new Vector2f(0,1),new Vector2f(1,1),new Vector2f(1,0));
+	private static List<Vector2f> uvs = Arrays.asList(
+			new Vector2f(0,0),
+			new Vector2f(0,.25f),
+			new Vector2f(.25f,.25f),
+			new Vector2f(.25f,0)
+	);
+	
 	private static final int[] faceIndices = new int[] {0,3,2, 0,2,1};
 
 	/*
