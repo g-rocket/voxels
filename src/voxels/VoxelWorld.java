@@ -1,5 +1,9 @@
 package voxels;
 
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
 import voxels.map.Coord3;
 import voxels.map.Direction;
 import voxels.meshconstruction.BlockMeshUtil;
@@ -18,6 +22,7 @@ import com.jme3.scene.Mesh;
 import com.jme3.scene.VertexBuffer.Type;
 import com.jme3.scene.debug.Arrow;
 import com.jme3.scene.shape.*;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.util.BufferUtils;
 
@@ -82,6 +87,22 @@ public class VoxelWorld extends SimpleApplication {
         bigMesh.setBuffer(Type.Index, 3, BufferUtils.createIntBuffer(Ints.toArray(mset.indices)));
     }
 
+    private static void ScreenSettings(VoxelWorld app, boolean fullScreen) {
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        DisplayMode[] modes = device.getDisplayModes();
+        int SCREEN_MODE=0; // note: there are usually several, let's pick the first
+        AppSettings settings = new AppSettings(true);
+        float scale_screen = fullScreen ? 1f : .6f;
+        Vector2f screenDims = new Vector2f((int)(modes[SCREEN_MODE].getWidth() * scale_screen ),(int)(modes[SCREEN_MODE].getHeight() * scale_screen ));
+        settings.setResolution((int)screenDims.x,(int) screenDims.y);
+        settings.setFrequency(modes[SCREEN_MODE].getRefreshRate());
+        settings.setBitsPerPixel(modes[SCREEN_MODE].getBitDepth());
+        if (fullScreen) {
+            settings.setFullscreen(device.isFullScreenSupported());
+        }
+        app.setSettings(settings);
+        app.setShowSettings(false);
+    }
     
     private void makeADemoMeshAndAdditToTheRootNode() {
         Mesh m = new com.jme3.scene.shape.Torus(50, 50, 13, 20);//Cylinder(12,24,5,11);
@@ -127,6 +148,7 @@ public class VoxelWorld extends SimpleApplication {
      *******************************/
     public static void main(String[] args) {
         VoxelWorld app = new VoxelWorld();
+        ScreenSettings(app, false); // setup setting to prevent jme3 settings screen from showing
         app.start(); // start the game
     }
 

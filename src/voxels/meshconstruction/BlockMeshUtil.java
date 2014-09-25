@@ -8,12 +8,6 @@ import voxels.map.Coord3;
 import voxels.map.Direction;
 
 public class BlockMeshUtil {
-	private static List<Vector2f> uvs = Arrays.asList(
-			new Vector2f(0,0),
-			new Vector2f(0,.25f),
-			new Vector2f(.25f,.25f),
-			new Vector2f(.25f,0)
-	);
 	
 	private static final int[] faceIndices = new int[] {0,3,2, 0,2,1};
 
@@ -36,7 +30,13 @@ public class BlockMeshUtil {
     }
 
 	private static void addUVsForDirection(MeshSet mset, Direction direction) {
-		mset.uvs.addAll(uvs);
+		Vector2f offsetStart = new Vector2f(.25f*(int)(Math.random()*4),.25f*(int)(Math.random()*4));
+        mset.uvs.addAll(Arrays.asList(
+        		offsetStart,
+        		new Vector2f(offsetStart.x, offsetStart.y +.25f),
+        		new Vector2f(offsetStart.x + .25f, offsetStart.y + .25f),
+        		new Vector2f(offsetStart.x + .25f, offsetStart.y)
+        ));
 	}
 
 	private static void addFaceVerticesToMesh(MeshSet mset, Coord3 pos, Direction direction) {
