@@ -49,4 +49,8 @@ Icon
 
 # Broken temperary / saving files created on some operating systems / programs
 *~
+
+# error logs
+hs_err_pid*.log
+
 /bin/
