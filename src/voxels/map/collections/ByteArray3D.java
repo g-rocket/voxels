@@ -31,26 +31,26 @@ public class ByteArray3D {
         return size;
     }
  
-    public byte Get(Coord3 pos) {
-        return Get(pos.x, pos.y, pos.z);//convenience method.
+    public byte get(Coord3 pos) {
+        return get(pos.x, pos.y, pos.z);//convenience method.
     }
     
     /*
      * This bitwise index look up is the same as [y * (size.x*size.z) + z * (size.x) + x]
      */
-    public byte Get(int x, int y, int z) {
+    public byte get(int x, int y, int z) {
         return data[y*(size.x*size.z) + z*size.x + x];
     }
     
-    public void Set(byte obj, Coord3 pos) {
-        Set(obj, pos.x, pos.y, pos.z); //convenience method. no need to change.
+    public void set(byte obj, Coord3 pos) {
+        set(obj, pos.x, pos.y, pos.z); //convenience method. no need to change.
     }
     
-    public void Set(byte obj, int x, int y, int z) {
+    public void set(byte obj, int x, int y, int z) {
     	data[y*(size.x*size.z) + z*size.x + x] = obj;
     }
  
-    public boolean IndexWithinBounds(int x, int y, int z) {
+    public boolean indexWithinBounds(int x, int y, int z) {
         return x < size.x && y < size.y && z < size.z;
     }
 }
