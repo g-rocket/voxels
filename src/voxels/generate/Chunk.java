@@ -2,6 +2,7 @@ package voxels.generate;
 
 import voxels.map.*;
 import voxels.map.collections.*;
+import static voxels.util.StaticUtils.*;
 
 /*
  * Deals with a single chunk of information
@@ -18,13 +19,15 @@ public class Chunk {
 	public Chunk(Coord3 position, WorldMap world) {
 		this.position = position;
 		this.world = world;
-		this.data = new ByteArray3D(SIZE);
+		data = new ByteArray3D(SIZE);
+		brain = new ChunkBrain();
+		meshDirty = true;
 	}
 	
 	public byte getBlockAtPos(Coord3 pos) {
 		return data.get(
-				pos.x % SIZE.x + (pos.x<0? SIZE.x: 0),
-				pos.y % SIZE.y + (pos.y<0? SIZE.y: 0),
-				pos.z % SIZE.z + (pos.z<0? SIZE.z: 0));
+				mod(pos.x, SIZE.x),
+				mod(pos.y, SIZE.y),
+				mod(pos.z, SIZE.z));
 	}
 }
