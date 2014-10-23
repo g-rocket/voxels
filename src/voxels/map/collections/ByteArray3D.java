@@ -2,7 +2,7 @@ package voxels.map.collections;
 
 import voxels.map.Coord3;
 
-public class ByteArray3D {
+public class ByteArray3D implements ChunkData {
     private Coord3 size;
     @SuppressWarnings("unused")
     private int SIZE_BITS_X,SIZE_BITS_Y,SIZE_BITS_Z;
@@ -25,10 +25,6 @@ public class ByteArray3D {
     		if((1 << i) == n) return i;
     	}
     	throw new IllegalArgumentException("i is not a positive integer power of two");
-    }
-    
-    public Coord3 getSize() {
-        return size;
     }
  
     public byte get(Coord3 pos) {

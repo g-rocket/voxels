@@ -1,5 +1,8 @@
 package voxels.generate;
 
+import com.jme3.renderer.*;
+import com.jme3.scene.control.*;
+
 import voxels.map.*;
 import voxels.map.collections.*;
 import static voxels.util.StaticUtils.*;
@@ -7,27 +10,42 @@ import static voxels.util.StaticUtils.*;
 /*
  * Deals with a single chunk of information
  */
-public class Chunk {
-	public static final Coord3 SIZE = new Coord3(16,16,16);
+public class Chunk extends AbstractControl {
 	public final Coord3 position;
-	public final ChunkBrain brain;
 	private final WorldMap world;
-	private final ByteArray3D data;
-	public boolean meshBuilding;
+	private final ChunkData data;
+	public final ChunkData blocks;
 	public boolean meshDirty;
 	
 	public Chunk(Coord3 position, WorldMap world) {
 		this.position = position;
 		this.world = world;
-		data = new ByteArray3D(SIZE);
-		brain = new ChunkBrain();
+		data = new ByteArray3D(world.chunkSize);
+		blocks = new ShiftedUnmodifiableChunkData(data, position.dot(world.chunkSize));
 		meshDirty = true;
 	}
 	
 	public byte getBlockAtPos(Coord3 pos) {
 		return data.get(
-				mod(pos.x, SIZE.x),
-				mod(pos.y, SIZE.y),
-				mod(pos.z, SIZE.z));
+				mod(pos.x, world.chunkSize.x),
+				mod(pos.y, world.chunkSize.y),
+				mod(pos.z, world.chunkSize.z));
+	}
+
+	@Override
+	protected void controlUpdate(float tpf) {
+		if(meshDirty) {
+			buildMesh();
+			meshDirty = false;
+		}
+	}
+
+	private void buildMesh() {
+		//TODO: implement me
+	}
+
+	@Override
+	protected void controlRender(RenderManager rm, ViewPort vp) {
+		// do nothing
 	}
 }

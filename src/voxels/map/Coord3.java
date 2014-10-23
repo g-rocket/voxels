@@ -30,4 +30,30 @@ public class Coord3 {
 	public static Coord3 subtract(Coord3 c1, Coord3 c2) {
 		return c1.minus(c2);
 	}
+
+	public Coord3 dot(Coord3 c) {
+		return new Coord3(x * c.x, y * c.y, z * c.z);
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		result = prime * result + z;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof Coord3)) return false;
+		Coord3 other = (Coord3) obj;
+		if (x != other.x) return false;
+		if (y != other.y) return false;
+		if (z != other.z) return false;
+		return true;
+	}
 }
