@@ -1,13 +1,15 @@
 package voxels.map;
 
 public enum BlockType {
-	UNKNOWN(255),
-	AIR(0),
-	DIRT(1),
-	ROCK(2),
-	GRASS(3);
+	UNKNOWN(255, true),
+	AIR    (  0, false),
+	DIRT   (  1, true),
+	ROCK   (  2, true),
+	GRASS  (  3, true);
 	
 	public final byte dataValue;
+	public final boolean isSolid;
+	public final boolean hasTexture;
 	
 	private static final BlockType[] blocks = new BlockType[256];
 	
@@ -15,8 +17,10 @@ public enum BlockType {
 		for(BlockType type: BlockType.values()) blocks[type.dataValue & 0xff] = type;
 	}
 	
-	private BlockType(int dataValue) {
+	private BlockType(int dataValue, boolean isSolid) {
 		this.dataValue = (byte)dataValue;
+		this.isSolid = isSolid;
+		this.hasTexture = dataValue == 0; // is it air?
 	}
 	
 	public static BlockType getBlock(byte data) {
@@ -24,7 +28,7 @@ public enum BlockType {
 	}
 	
 	public static BlockType getBlock(int data) {
-		if(data < 0) data &= 0xff;
+		data &= 0xff;
 		return blocks[data];
 	}
 }

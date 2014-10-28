@@ -10,4 +10,9 @@ public class StaticUtils {
 	public static float mod(float i, float m) {
 		return i % m + (i < 0? m: 0);
 	}
+	
+	public static int ifdiv(int n, int d) {
+	    if (n >= 0) return n / d;
+	    else return ~(~n / d);
+	}
 }

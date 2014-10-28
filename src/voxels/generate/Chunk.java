@@ -1,10 +1,12 @@
 package voxels.generate;
 
 import com.jme3.renderer.*;
+import com.jme3.scene.*;
 import com.jme3.scene.control.*;
 
 import voxels.map.*;
 import voxels.map.collections.*;
+import voxels.meshconstruction.*;
 import static voxels.util.StaticUtils.*;
 
 /*
@@ -25,11 +27,19 @@ public class Chunk extends AbstractControl {
 		meshDirty = true;
 	}
 	
-	public byte getBlockAtPos(Coord3 pos) {
-		return data.get(
-				mod(pos.x, world.chunkSize.x),
-				mod(pos.y, world.chunkSize.y),
-				mod(pos.z, world.chunkSize.z));
+	public BlockType getBlock(Coord3 blockPos) {
+		return getBlockLocal(
+				mod(blockPos.x, world.chunkSize.x),
+				mod(blockPos.y, world.chunkSize.y),
+				mod(blockPos.z, world.chunkSize.z));
+	}
+	
+	private BlockType getBlockLocal(int x, int y, int z) {
+		return BlockType.getBlock(data.get(x, y, z));
+	}
+
+	private BlockType getBlockLocal(Coord3 localPos) {
+		return getBlockLocal(localPos.x, localPos.y, localPos.z);
 	}
 
 	@Override
@@ -41,11 +51,35 @@ public class Chunk extends AbstractControl {
 	}
 
 	private void buildMesh() {
-		//TODO: implement me
+        MeshSet mset = new MeshSet();
+        
+        for(int x = 0; x < world.chunkSize.x; x++) {
+        	for(int y = 0; y < world.chunkSize.y; y++) {
+        		for(int z = 0; z < world.chunkSize.z; z++) {
+        			BlockType block = getBlockLocal(x, y, z);
+        			// maybe add textures to mesh
+        		}
+        	}
+        }
+        
+        MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+
 	}
 
 	@Override
 	protected void controlRender(RenderManager rm, ViewPort vp) {
 		// do nothing
 	}
+	
+	public Geometry getGeometry() {
+        Geometry geom = (Geometry) getSpatial(); // an AbstractControl method
+        if (geom == null) {
+            Mesh mesh = new Mesh(); // placeholder mesh to be filled later
+            mesh.setDynamic(); // hint to openGL that the mesh may change occasionally
+            mesh.setMode(Mesh.Mode.Triangles); // GL draw mode 
+            geom = new Geometry("chunk_geometry", mesh);
+            geom.addControl(this);
+        }
+        return geom;
+    }
 }

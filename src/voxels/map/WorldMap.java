@@ -1,6 +1,7 @@
 package voxels.map;
 
 import static voxels.map.BlockType.*;
+import static voxels.util.StaticUtils.*;
 
 import java.util.*;
 
@@ -17,12 +18,30 @@ public class WorldMap {
 		chunkSize = new Coord3(16,16,16);
 	}
 	
-	public byte getBlock(Coord3 woco) {
-		//TODO: implement me;
-		return DIRT.dataValue;
+	public BlockType getBlock(Coord3 blockPos) {
+		return getChunk(chunkPos(blockPos)).getBlock(blockPos);
 	}
 	
-	public void generateChunk(Coord3 position) {
-		//TODO: implement me
+	private Coord3 chunkPos(Coord3 blockPos) {
+		return new Coord3(
+				ifdiv(blockPos.x, chunkSize.x), 
+				ifdiv(blockPos.x, chunkSize.x), 
+				ifdiv(blockPos.x, chunkSize.x));
+	}
+	
+	public Chunk getChunk(Coord3 chunkPos) {
+		Chunk c = map.get(chunkPos);
+		if(c != null) {
+			return c;
+		} else {
+			return generateChunk(chunkPos);
+		}
+	}
+	
+	private Chunk generateChunk(Coord3 chunkPos) {
+		Chunk c = new Chunk(chunkPos, this);
+		//TODO: generate some terrain
+		map.put(chunkPos, c);
+		return c;
 	}
 }

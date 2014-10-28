@@ -6,8 +6,7 @@ import java.awt.GraphicsEnvironment;
 
 import voxels.map.Coord3;
 import voxels.map.Direction;
-import voxels.meshconstruction.BlockMeshUtil;
-import voxels.meshconstruction.MeshSet;
+import voxels.meshconstruction.*;
 
 import com.google.common.primitives.Ints;
 import com.jme3.app.SimpleApplication;
@@ -46,47 +45,6 @@ public class VoxelWorld extends SimpleApplication {
         attachCoordinateAxes(Vector3f.ZERO);
     }
 
-    /*
-     * TEST METHOD. THIS CODE WILL MOVE!!
-     */
-    private void addTestBlockFace() {
-    	for(Direction dir: Direction.values()) {
-    		System.out.println(dir);
-    		MeshSet mset = new MeshSet();
-    		Coord3 pos = new Coord3(0,0,0);
-    		BlockMeshUtil.AddFaceMeshData(pos, mset, dir, 0);
-        	//Mesh testMesh = new Mesh();
-    		//ApplyMeshSet(mset, testMesh);
-    		//Geometry someGeometry = new Geometry("test geom", testMesh);
-    		//someGeometry.setMaterial(materialLibrarian.getBlockMaterial());
-    		//rootNode.attachChild(someGeometry);
-    		
-    		Mesh texturedTestMesh = new Mesh();
-    		ApplyMeshSet(mset, texturedTestMesh);
-    		Geometry someTexturedGeometry = new Geometry("test geom", texturedTestMesh);
-    		someTexturedGeometry.setMaterial(materialLibrarian.getTexturedBlockMaterial());
-    		rootNode.attachChild(someTexturedGeometry);
-    	}
-    }
-    
-    /*
-     * TEST METHOD. THIS CODE WILL MOVE!!
-     */
-    public static void ApplyMeshSet(MeshSet mset, Mesh bigMesh) {
-        if (bigMesh == null) {
-            System.out.println("Something is not right. This mesh is null. We should really be throwing an exception here.");
-            return;
-        }
-        
-        bigMesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(mset.vertices.toArray(new Vector3f[0])));
-        bigMesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(mset.uvs.toArray(new Vector2f[0])));
- 
-        /* google guava library helps with turning Lists into primitive arrays
-        * "Ints" and "Floats" are guava classes.
-        * */ 
-        bigMesh.setBuffer(Type.Index, 3, BufferUtils.createIntBuffer(Ints.toArray(mset.indices)));
-    }
-
     private static void ScreenSettings(VoxelWorld app, boolean fullScreen) {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         DisplayMode[] modes = device.getDisplayModes();
@@ -113,6 +71,27 @@ public class VoxelWorld extends SimpleApplication {
         g2.setMaterial(materialLibrarian.getBlockMaterial());
         rootNode.attachChild(g2);
         attachCoordinateAxes(Vector3f.ZERO);
+    }
+    
+
+    private void addTestBlockFace() {
+    	for(Direction dir: Direction.values()) {
+    		System.out.println(dir);
+    		MeshSet mset = new MeshSet();
+    		Coord3 pos = new Coord3(0,0,0);
+    		BlockMeshUtil.AddFaceMeshData(pos, mset, dir, 0);
+        	//Mesh testMesh = new Mesh();
+    		//ApplyMeshSet(mset, testMesh);
+    		//Geometry someGeometry = new Geometry("test geom", testMesh);
+    		//someGeometry.setMaterial(materialLibrarian.getBlockMaterial());
+    		//rootNode.attachChild(someGeometry);
+    		
+    		Mesh texturedTestMesh = new Mesh();
+    		MeshBuilder.applyMeshSet(mset, texturedTestMesh);
+    		Geometry someTexturedGeometry = new Geometry("test geom", texturedTestMesh);
+    		someTexturedGeometry.setMaterial(materialLibrarian.getTexturedBlockMaterial());
+    		rootNode.attachChild(someTexturedGeometry);
+    	}
     }
     
     private void attachCoordinateAxes(Vector3f pos){
