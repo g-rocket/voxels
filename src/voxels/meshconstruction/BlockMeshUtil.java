@@ -4,8 +4,7 @@ import java.util.*;
 
 import com.jme3.math.*;
 
-import voxels.map.Coord3;
-import voxels.map.Direction;
+import voxels.map.*;
 
 public class BlockMeshUtil {
 	
@@ -16,10 +15,9 @@ public class BlockMeshUtil {
 	 * 6 indices and 4 UV vector2s
 	 * add them to mesh Set
 	 */
-	public static void AddFaceMeshData(Coord3 pos, MeshSet mset, Direction direction, int triIndexStart)
-	{
+	public static void AddFaceMeshData(Coord3 pos, BlockType block, MeshSet mset, Direction direction, int triIndexStart) {
 		addFaceVerticesToMesh(mset, pos, direction);
-		addUVsForDirection(mset, direction);
+		addUVsForDirection(mset, block.getTexture(direction), direction);
 		addIndicesForDirection(mset, triIndexStart);
 	}
 	
@@ -29,14 +27,9 @@ public class BlockMeshUtil {
         }
     }
 
-	private static void addUVsForDirection(MeshSet mset, Direction direction) {
-		Vector2f offsetStart = new Vector2f(.25f*(int)(Math.random()*4),.25f*(int)(Math.random()*4));
-        mset.uvs.addAll(Arrays.asList(
-        		offsetStart,
-        		new Vector2f(offsetStart.x, offsetStart.y +.25f),
-        		new Vector2f(offsetStart.x + .25f, offsetStart.y + .25f),
-        		new Vector2f(offsetStart.x + .25f, offsetStart.y)
-        ));
+	private static void addUVsForDirection(MeshSet mset, Vector2f[] uvs, Direction direction) {
+		//Vector2f offsetStart = new Vector2f(.25f*(int)(Math.random()*4),.25f*(int)(Math.random()*4));
+        mset.uvs.addAll(Arrays.asList(uvs));
 	}
 
 	private static void addFaceVerticesToMesh(MeshSet mset, Coord3 pos, Direction direction) {

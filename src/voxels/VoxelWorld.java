@@ -4,8 +4,7 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
-import voxels.map.Coord3;
-import voxels.map.Direction;
+import voxels.map.*;
 import voxels.meshconstruction.*;
 
 import com.google.common.primitives.Ints;
@@ -79,7 +78,7 @@ public class VoxelWorld extends SimpleApplication {
     		System.out.println(dir);
     		MeshSet mset = new MeshSet();
     		Coord3 pos = new Coord3(0,0,0);
-    		BlockMeshUtil.AddFaceMeshData(pos, mset, dir, 0);
+    		BlockMeshUtil.AddFaceMeshData(pos, BlockType.GRASS, mset, dir, 0);
         	//Mesh testMesh = new Mesh();
     		//ApplyMeshSet(mset, testMesh);
     		//Geometry someGeometry = new Geometry("test geom", testMesh);
