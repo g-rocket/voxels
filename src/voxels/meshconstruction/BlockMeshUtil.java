@@ -15,16 +15,17 @@ public class BlockMeshUtil {
 	 * 6 indices and 4 UV vector2s
 	 * add them to mesh Set
 	 */
-	public static void AddFaceMeshData(Coord3 pos, BlockType block, MeshSet mset, Direction direction, int triIndexStart) {
+	public static void addFaceMeshData(Coord3 pos, BlockType block, MeshSet mset, Direction direction) {
 		addFaceVerticesToMesh(mset, pos, direction);
 		addUVsForDirection(mset, block.getTexture(direction), direction);
-		addIndicesForDirection(mset, triIndexStart);
+		addIndicesForDirection(mset);
 	}
 	
-	private static void addIndicesForDirection(MeshSet mset, int triIndexStart) {
-        for (int i : faceIndices) {
-            mset.indices.add(i + triIndexStart);
+	private static void addIndicesForDirection(MeshSet mset) {
+        for (int i: faceIndices) {
+            mset.indices.add(i + mset.triIndex);
         }
+        mset.triIndex += 4;
     }
 
 	private static void addUVsForDirection(MeshSet mset, Vector2f[] uvs, Direction direction) {

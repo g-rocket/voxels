@@ -12,7 +12,7 @@ public class Coord3 {
 	}
 	
 	public Vector3f asVector() {
-		return new Vector3f(x,y,z);
+		return new Vector3f(x,z,y);
 	}
 	
 	public Coord3 plus(Coord3 c) {

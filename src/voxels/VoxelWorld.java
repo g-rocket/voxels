@@ -40,7 +40,7 @@ public class VoxelWorld extends SimpleApplication {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
         //makeADemoMeshAndAdditToTheRootNode();
-        addTestBlockFace();
+        addTestBlock();
         attachCoordinateAxes(Vector3f.ZERO);
     }
 
@@ -71,14 +71,14 @@ public class VoxelWorld extends SimpleApplication {
         rootNode.attachChild(g2);
         attachCoordinateAxes(Vector3f.ZERO);
     }
-    
 
-    private void addTestBlockFace() {
+    private void addTestBlock() {
     	for(Direction dir: Direction.values()) {
     		System.out.println(dir);
     		MeshSet mset = new MeshSet();
-    		Coord3 pos = new Coord3(0,0,0);
-    		BlockMeshUtil.AddFaceMeshData(pos, BlockType.GRASS, mset, dir, 0);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,1), BlockType.GRASS, mset, dir);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,0), BlockType.DIRT, mset, dir);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,-1), BlockType.ROCK, mset, dir);
         	//Mesh testMesh = new Mesh();
     		//ApplyMeshSet(mset, testMesh);
     		//Geometry someGeometry = new Geometry("test geom", testMesh);

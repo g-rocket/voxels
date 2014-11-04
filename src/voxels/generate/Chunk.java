@@ -49,6 +49,13 @@ public class Chunk extends AbstractControl {
 			meshDirty = false;
 		}
 	}
+	
+	private Coord3 getGlobalPos(int x, int y, int z) {
+		return new Coord3(
+				x + (position.x*world.chunkSize.x),
+				y + (position.y*world.chunkSize.y),
+				z + (position.z*world.chunkSize.z));
+	}
 
 	private void buildMesh() {
         MeshSet mset = new MeshSet();
@@ -57,7 +64,11 @@ public class Chunk extends AbstractControl {
         	for(int y = 0; y < world.chunkSize.y; y++) {
         		for(int z = 0; z < world.chunkSize.z; z++) {
         			BlockType block = getBlockLocal(x, y, z);
-        			// maybe add textures to mesh
+        			for(Direction dir: Direction.values()) {
+        				if(!block.isOpaque || !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque) {
+        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir);
+        				}
+        			}
         		}
         	}
         }
