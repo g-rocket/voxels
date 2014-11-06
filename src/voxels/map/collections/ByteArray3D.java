@@ -35,6 +35,8 @@ public class ByteArray3D implements ChunkData {
      * This bitwise index look up is the same as [y * (size.x*size.z) + z * (size.x) + x]
      */
     public byte get(int x, int y, int z) {
+    	//System.out.printf("%b,%d,%d,%d\n",indexWithinBounds(x, y, z),x,y,z);
+    	//if(!indexWithinBounds(x, y, z)) throw new IndexOutOfBoundsException(String.format("(%d,%d,%d) is invalid",x,y,z));
         return data[y*(size.x*size.z) + z*size.x + x];
     }
     
@@ -47,6 +49,6 @@ public class ByteArray3D implements ChunkData {
     }
  
     public boolean indexWithinBounds(int x, int y, int z) {
-        return x < size.x && y < size.y && z < size.z;
+        return x >= 0 && x < size.x && y >= 0 && y < size.y && z >= 0 && z < size.z;
     }
 }

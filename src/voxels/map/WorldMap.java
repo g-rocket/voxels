@@ -5,6 +5,10 @@ import static voxels.util.StaticUtils.*;
 
 import java.util.*;
 
+import com.jme3.material.*;
+import com.jme3.scene.*;
+
+import voxels.VoxelWorld.MaterialLibrarian;
 import voxels.generate.*;
 
 /*
@@ -13,9 +17,15 @@ import voxels.generate.*;
 public class WorldMap {
 	public final Coord3 chunkSize;
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
+	private final Node worldNode;
+	public final Material blockMaterial;
+	private final TerrainGenerater terrainGenerater;
 	
-	public WorldMap() {
+	public WorldMap(Node worldNode, Material blockMaterial) {
 		chunkSize = new Coord3(16,16,16);
+		this.worldNode = worldNode;
+		this.blockMaterial = blockMaterial;
+		this.terrainGenerater = new TerrainGenerater();
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -39,9 +49,9 @@ public class WorldMap {
 	}
 	
 	private Chunk generateChunk(Coord3 chunkPos) {
-		Chunk c = new Chunk(chunkPos, this);
-		//TODO: generate some terrain
+		Chunk c = new Chunk(chunkPos, this, terrainGenerater);
 		map.put(chunkPos, c);
+		worldNode.attachChild(c.getGeometry());
 		return c;
 	}
 }

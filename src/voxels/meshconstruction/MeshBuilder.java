@@ -23,5 +23,6 @@ public class MeshBuilder {
         * "Ints" and "Floats" are guava classes.
         * */ 
         bigMesh.setBuffer(Type.Index, 3, BufferUtils.createIntBuffer(Ints.toArray(mset.indices)));
+        bigMesh.updateBound();
     }
 }

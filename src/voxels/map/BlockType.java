@@ -55,6 +55,7 @@ public enum BlockType {
 	}
 
 	public Vector2f[] getTexture(Direction direction) {
+		System.out.println(this + ": " + textures);
 		return textures[direction.ordinal()];
 	}
 }

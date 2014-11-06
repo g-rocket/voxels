@@ -28,7 +28,8 @@ import com.jme3.util.BufferUtils;
  * Created by didyouloseyourdog on 8/10/14.
  */
 public class VoxelWorld extends SimpleApplication {
-    MaterialLibrarian materialLibrarian;
+    private MaterialLibrarian materialLibrarian;
+    private WorldMap world;
 
     @Override
     public void simpleUpdate(float secondsPerFrame) {
@@ -39,8 +40,8 @@ public class VoxelWorld extends SimpleApplication {
     public void simpleInitApp() {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
-        //makeADemoMeshAndAdditToTheRootNode();
-        addTestBlock();
+        world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
+        world.getChunk(new Coord3(0,0,0));
         attachCoordinateAxes(Vector3f.ZERO);
     }
 

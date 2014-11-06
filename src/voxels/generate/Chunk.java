@@ -19,11 +19,18 @@ public class Chunk extends AbstractControl {
 	public final ChunkData blocks;
 	public boolean meshDirty;
 	
-	public Chunk(Coord3 position, WorldMap world) {
+	public Chunk(Coord3 position, WorldMap world, TerrainGenerater terrainGenerater) {
 		this.position = position;
 		this.world = world;
 		data = new ByteArray3D(world.chunkSize);
 		blocks = new ShiftedUnmodifiableChunkData(data, position.dot(world.chunkSize));
+		for(int x = 0; x < world.chunkSize.x; x++) {
+			for(int y = 0; y < world.chunkSize.y; y++) {
+				for(int z = 0; z < world.chunkSize.z; z++) {
+					data.set(terrainGenerater.getBlockAtPosistion(getGlobalPos(x, y, z)).dataValue, new Coord3(x,y,z));
+				}
+			}
+		}
 		meshDirty = true;
 	}
 	
@@ -32,6 +39,10 @@ public class Chunk extends AbstractControl {
 				mod(blockPos.x, world.chunkSize.x),
 				mod(blockPos.y, world.chunkSize.y),
 				mod(blockPos.z, world.chunkSize.z));
+	}
+	
+	private boolean isValidLocal(int x, int y, int z) {
+		return data.indexWithinBounds(x, y, z);
 	}
 	
 	private BlockType getBlockLocal(int x, int y, int z) {
@@ -65,7 +76,9 @@ public class Chunk extends AbstractControl {
         		for(int z = 0; z < world.chunkSize.z; z++) {
         			BlockType block = getBlockLocal(x, y, z);
         			for(Direction dir: Direction.values()) {
-        				if(!block.isOpaque || !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque) {
+        				if(block.isOpaque &&
+        				   (!isValidLocal(x+dir.dx, y+dir.dy, z+dir.dz) ||
+        				   !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque)) {
         					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir);
         				}
         			}
@@ -89,6 +102,7 @@ public class Chunk extends AbstractControl {
             mesh.setDynamic(); // hint to openGL that the mesh may change occasionally
             mesh.setMode(Mesh.Mode.Triangles); // GL draw mode 
             geom = new Geometry("chunk_geometry", mesh);
+            geom.setMaterial(world.blockMaterial);
             geom.addControl(this);
         }
         return geom;
