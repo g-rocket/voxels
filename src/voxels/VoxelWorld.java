@@ -41,7 +41,9 @@ public class VoxelWorld extends SimpleApplication {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
-        world.getChunk(new Coord3(0,0,0));
+        for(Coord3 c: Coord3.range(new Coord3(0,0,0), new Coord3(2,2,1))) {
+            world.getChunk(c);
+        }
         attachCoordinateAxes(Vector3f.ZERO);
     }
 
