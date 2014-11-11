@@ -28,7 +28,7 @@ public enum BlockType {
 		this.dataValue = (byte)dataValue;
 		this.isSolid = isSolid;
 		this.isOpaque = isOpaque;
-		this.hasTexture = hasTexture; // is it air?
+		this.hasTexture = hasTexture;
 		
 		if(!this.hasTexture) {
 			textures = null;
