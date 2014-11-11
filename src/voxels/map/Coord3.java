@@ -1,5 +1,7 @@
 package voxels.map;
 
+import java.util.*;
+
 import com.jme3.math.Vector3f;
 
 public class Coord3 {
@@ -33,6 +35,58 @@ public class Coord3 {
 
 	public Coord3 dot(Coord3 c) {
 		return new Coord3(x * c.x, y * c.y, z * c.z);
+	}
+	
+	public static Iterable<Coord3> range(Coord3 start, Coord3 end) {
+		return new RangeIterator(start, end);
+	}
+	
+	private static class RangeIterator implements Iterator<Coord3>, Iterable<Coord3> {
+		private Coord3 start;
+		private Coord3 end;
+		private int x, y, z;
+		
+		public RangeIterator(Coord3 start, Coord3 end) {
+			this.start = start;
+			this.end = end;
+			x = start.x - 1;
+			y = start.y;
+			z = start.z;
+		}
+
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			return x < end.x &&
+				   y < end.y &&
+				   z < end.z;
+		}
+
+		/**
+		 * WARNING: may return junk if hasNext() is (or has ever been) false
+		 */
+		@Override
+		public Coord3 next() {
+			x++;
+			if(x >= end.x) {
+				x = 0;
+				y++;
+			}
+			if(y >= end.y){
+				y = 0;
+				z++;
+			}
+			return new Coord3(x,y,z);
+		}
+
+		/**
+		 * can only be used once per instance
+		 */
+		@Override
+		public Iterator<Coord3> iterator() {
+			return this;
+		}
+		
 	}
 	
 	@Override
