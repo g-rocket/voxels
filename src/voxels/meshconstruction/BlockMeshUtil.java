@@ -1,7 +1,9 @@
 package voxels.meshconstruction;
 
+import java.awt.*;
 import java.util.*;
 
+import com.google.common.primitives.*;
 import com.jme3.math.*;
 
 import voxels.map.*;
@@ -9,18 +11,25 @@ import voxels.map.*;
 public class BlockMeshUtil {
 	
 	private static final int[] faceIndices = new int[] {0,3,2, 0,2,1};
+	private static float[] shadowHolder = new float[4];
 
 	/*
 	 * Make four verts,
 	 * 6 indices and 4 UV vector2s
 	 * add them to mesh Set
 	 */
-	public static void addFaceMeshData(Coord3 pos, BlockType block, MeshSet mset, Direction direction) {
+	public static void addFaceMeshData(Coord3 pos, BlockType block, MeshSet mset, Direction direction, Color shadow) {
 		addFaceVerticesToMesh(mset, pos, direction);
 		addUVsForDirection(mset, block.getTexture(direction), direction);
 		addIndicesForDirection(mset);
+		addShadow(mset, shadow);
 	}
 	
+	private static void addShadow(MeshSet mset, Color shadow) {
+		shadow.getComponents(shadowHolder);
+		mset.colors.addAll(Floats.asList(.5f,.5f,.5f,.5f));
+	}
+
 	private static void addIndicesForDirection(MeshSet mset) {
         for (int i: faceIndices) {
             mset.indices.add(i + mset.triIndex);

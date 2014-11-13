@@ -1,8 +1,6 @@
 package voxels;
 
-import java.awt.DisplayMode;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import java.awt.*;
 
 import voxels.map.*;
 import voxels.meshconstruction.*;
@@ -40,6 +38,12 @@ public class VoxelWorld extends SimpleApplication {
     public void simpleInitApp() {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
+        /*
+        Geometry broken = new Geometry("broken");
+        broken.setMesh(new Mesh());
+        broken.setMaterial(materialLibrarian.getTexturedBlockMaterial());
+        rootNode.attachChild(broken);
+        */
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
         for(Coord3 c: Coord3.range(new Coord3(0,0,0), new Coord3(2,2,1))) {
             world.getChunk(c);
@@ -79,9 +83,9 @@ public class VoxelWorld extends SimpleApplication {
     	for(Direction dir: Direction.values()) {
     		System.out.println(dir);
     		MeshSet mset = new MeshSet();
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,1), BlockType.GRASS, mset, dir);
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,0), BlockType.DIRT, mset, dir);
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,-1), BlockType.ROCK, mset, dir);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,1), BlockType.GRASS, mset, dir, Color.BLACK);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,0), BlockType.DIRT, mset, dir, Color.BLACK);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,-1), BlockType.ROCK, mset, dir, Color.BLACK);
         	//Mesh testMesh = new Mesh();
     		//ApplyMeshSet(mset, testMesh);
     		//Geometry someGeometry = new Geometry("test geom", testMesh);

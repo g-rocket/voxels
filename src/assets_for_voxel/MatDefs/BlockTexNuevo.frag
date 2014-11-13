@@ -1,5 +1,5 @@
 varying vec2 texCoord;
-varying vec2 texMapOffset;
+//varying vec2 texMapOffset;
 
 uniform sampler2D m_ColorMap;
 uniform vec4 m_Color;

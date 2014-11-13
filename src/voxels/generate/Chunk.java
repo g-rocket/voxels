@@ -1,5 +1,7 @@
 package voxels.generate;
 
+import java.awt.*;
+
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.*;
@@ -79,7 +81,7 @@ public class Chunk extends AbstractControl {
         				if(block.isOpaque &&
         				   (!isValidLocal(x+dir.dx, y+dir.dy, z+dir.dz) ||
         				   !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque)) {
-        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir);
+        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, new Color(0,0,0,.5f));
         				}
         			}
         		}
@@ -107,7 +109,7 @@ public class Chunk extends AbstractControl {
             Mesh mesh = new Mesh(); // placeholder mesh to be filled later
             mesh.setDynamic(); // hint to openGL that the mesh may change occasionally
             mesh.setMode(Mesh.Mode.Triangles); // GL draw mode 
-            geom = new Geometry("chunk_geometry", mesh);
+            geom = new Geometry("chunk_"+position+"_geometry", mesh);
             geom.setMaterial(world.blockMaterial);
             geom.addControl(this);
         }

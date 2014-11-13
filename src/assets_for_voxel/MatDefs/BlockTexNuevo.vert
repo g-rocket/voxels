@@ -2,17 +2,17 @@ uniform mat4 g_WorldViewProjectionMatrix;
 
 attribute vec3 inPosition;
 attribute vec2 inTexCoord;
-attribute vec3 inNormal;
 attribute vec4 inColor;
-attribute vec2 inTexCoord2; //TEX MAP OFFSE.
+//attribute vec2 inTexCoord2; //TEX MAP OFFSE.
+//attribute vec3 inNormal;
 
 varying vec2 texCoord;
 varying vec2 texMapOffset;
 varying float shadow;
 
 void main(){
-	shadow = max(inColor.z, inColor.w);
+	shadow = 1.0;//inColor.z;
     gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition, 1.0);
     texCoord = inTexCoord;
-    texMapOffset = inTexCoord2;
+    //texMapOffset = inTexCoord2;
 }
