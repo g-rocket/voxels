@@ -23,12 +23,12 @@ public class ShiftedUnmodifiableChunkData implements ChunkData {
 
 	@Override
 	public void set(byte obj, Coord3 pos) {
-		throw new UnsupportedOperationException("You can't call 'set' on an unmodifyable chunk data");
+		throw new UnsupportedOperationException("You can't call 'set' on an unmodifiable chunk data");
 	}
 
 	@Override
 	public void set(byte obj, int x, int y, int z) {
-		throw new UnsupportedOperationException("You can't call 'set' on an unmodifyable chunk data");
+		throw new UnsupportedOperationException("You can't call 'set' on an unmodifiable chunk data");
 	}
 
 	@Override
