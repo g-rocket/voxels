@@ -81,7 +81,7 @@ public class Chunk extends AbstractControl {
         				if(block.isOpaque &&
         				   (!isValidLocal(x+dir.dx, y+dir.dy, z+dir.dz) ||
         				   !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque)) {
-        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, new Color(0,0,0,.5f));
+        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, z/(float)world.chunkSize.z);
         				}
         			}
         		}
@@ -89,13 +89,6 @@ public class Chunk extends AbstractControl {
         }
         
         MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
-        /* GAVIN:
-         * THE FOLLOWING COMMENTED OUT CODE IS A 'COUSIN' OF mesh.updateBound().
-         * THAT'S THE GOOD NEWS. BAD NEWS IS IT DOESN'T SOLVE THE DISAPPEARING MESH PROBLEM!
-         * HENCE, JUST LEAVING IT HERE FOR YOUR REFERENCE (IT MIGHT BE GOOD TO KNOW ABOUT NONETHELESS). 
-         * PLEASE DELETE THIS NOTE AND THE LINE AS NEEDED. --MEDDLER
-         */
-        // getGeometry().updateModelBound();
 	}
 
 	@Override

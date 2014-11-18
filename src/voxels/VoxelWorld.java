@@ -36,6 +36,7 @@ public class VoxelWorld extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
+    	viewPort.setBackgroundColor(ColorRGBA.Blue);
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
         /*
@@ -83,9 +84,9 @@ public class VoxelWorld extends SimpleApplication {
     	for(Direction dir: Direction.values()) {
     		System.out.println(dir);
     		MeshSet mset = new MeshSet();
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,1), BlockType.GRASS, mset, dir, Color.BLACK);
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,0), BlockType.DIRT, mset, dir, Color.BLACK);
-    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,-1), BlockType.ROCK, mset, dir, Color.BLACK);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,1), BlockType.GRASS, mset, dir, (float)Math.random());
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,0), BlockType.DIRT, mset, dir, 1);
+    		BlockMeshUtil.addFaceMeshData(new Coord3(0,0,-1), BlockType.ROCK, mset, dir, .5f);
         	//Mesh testMesh = new Mesh();
     		//ApplyMeshSet(mset, testMesh);
     		//Geometry someGeometry = new Geometry("test geom", testMesh);
