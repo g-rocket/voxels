@@ -2,6 +2,7 @@ package voxels.generate;
 
 import java.util.*;
 
+import voxels.block.*;
 import voxels.map.*;
 
 public class TerrainGenerater {

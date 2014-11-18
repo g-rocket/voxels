@@ -6,6 +6,8 @@ import java.util.*;
 import com.google.common.primitives.*;
 import com.jme3.math.*;
 
+import voxels.block.*;
+import voxels.block.texture.*;
 import voxels.map.*;
 
 public class BlockMeshUtil {

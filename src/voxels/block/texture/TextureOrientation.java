@@ -1,7 +1,10 @@
-package voxels.map;
+package voxels.block.texture;
+
+import voxels.block.texture.*;
 
 import com.jme3.math.*;
-import static voxels.map.Corner.*;
+
+import static voxels.block.texture.Corner.*;
 
 public enum TextureOrientation {
 	U (TL,TR,BR,BL),

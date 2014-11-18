@@ -2,6 +2,8 @@ package voxels;
 
 import java.awt.*;
 
+import voxels.block.*;
+import voxels.block.texture.*;
 import voxels.map.*;
 import voxels.meshconstruction.*;
 

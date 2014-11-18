@@ -1,8 +1,12 @@
-package voxels.map;
+package voxels.block;
+
+import voxels.block.texture.*;
+import voxels.map.*;
 
 import com.jme3.math.*;
-import static voxels.map.TextureOrientation.*;
-import static voxels.map.Direction.*;
+
+import static voxels.block.texture.Direction.*;
+import static voxels.block.texture.TextureOrientation.*;
 
 public enum BlockType {
 	UNKNOWN(255,  true,  true,  true,  XPOS,3,0,U,  XNEG,3,0,U,  YPOS,3,0,U,  YNEG,3,0,U,  ZPOS,3,0,U, ZNEG,3,0,U),

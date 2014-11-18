@@ -1,4 +1,4 @@
-package voxels.generate;
+package voxels.map;
 
 import java.awt.*;
 
@@ -6,6 +6,9 @@ import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.*;
 
+import voxels.block.*;
+import voxels.block.texture.*;
+import voxels.generate.*;
 import voxels.map.*;
 import voxels.map.collections.*;
 import voxels.meshconstruction.*;

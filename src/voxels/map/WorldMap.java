@@ -1,6 +1,6 @@
 package voxels.map;
 
-import static voxels.map.BlockType.*;
+import static voxels.block.BlockType.*;
 import static voxels.util.StaticUtils.*;
 
 import java.util.*;
@@ -9,6 +9,7 @@ import com.jme3.material.*;
 import com.jme3.scene.*;
 
 import voxels.VoxelWorld.MaterialLibrarian;
+import voxels.block.*;
 import voxels.generate.*;
 
 /*

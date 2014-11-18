@@ -1,4 +1,4 @@
-package voxels.map;
+package voxels.block.texture;
 
 import com.jme3.math.*;
 
