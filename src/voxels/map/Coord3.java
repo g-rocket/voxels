@@ -56,10 +56,13 @@ public class Coord3 {
 
 		@Override
 		public boolean hasNext() {
-			// TODO Auto-generated method stub
 			return x < end.x &&
 				   y < end.y &&
-				   z < end.z;
+				   z < end.z && (
+					   x < end.x - 1 ||
+					   y < end.y - 1 ||
+					   z < end.z - 1
+				   );
 		}
 
 		/**
@@ -69,11 +72,11 @@ public class Coord3 {
 		public Coord3 next() {
 			x++;
 			if(x >= end.x) {
-				x = 0;
+				x = start.x;
 				y++;
 			}
 			if(y >= end.y){
-				y = 0;
+				y = start.y;
 				z++;
 			}
 			return new Coord3(x,y,z);
