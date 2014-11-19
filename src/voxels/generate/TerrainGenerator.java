@@ -20,17 +20,12 @@ public class TerrainGenerator {
 		terrain = setupNoiseGenerator(seed);
 	}
 	
-	private static Module setupNoiseGenerator(long seed) {
+	private Module setupNoiseGenerator(long seed) {
 		JsonToModule parser;
-		try {
-			parser = new JsonToModule(
-					new java.io.BufferedReader(
-							new FileReader(new File("/Users/gavinsyancey/Documents/workspace/voxels/src/voxel/assets/noise/test.json"))
-							//new InputStreamReader(this.getClass().getResourceAsStream("voxel/assets/noise/test.json"))
-					), seed);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		parser = new JsonToModule(
+				new BufferedReader(
+						new InputStreamReader(this.getClass().getResourceAsStream("testTerrain.json"))
+				), seed);
 		parser.parse();
 		return parser.getModule("test");
 	}
