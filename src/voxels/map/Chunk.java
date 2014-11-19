@@ -84,7 +84,7 @@ public class Chunk extends AbstractControl {
         				if(block.isOpaque &&
         				   (!isValidLocal(x+dir.dx, y+dir.dy, z+dir.dz) ||
         				   !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque)) {
-        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, z/(float)world.chunkSize.z);
+        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, .5f+(z + (position.z*world.chunkSize.z))/256f);
         				}
         			}
         		}
