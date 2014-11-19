@@ -1,13 +1,13 @@
 {
 	"groundGradient": {
 		"$name": "Gradient",
-		"gradient": [0, 0, 0, 1, 0, 0]
+		"gradient": [0, 0, 0, 0, 0, 1]
 	},
 	"mountainTerrain": {
 		"$name": "TranslateDomain",
 		"axisYSource": {
 			"$name": "ScaleDomain",
-			"scaleY": 0.4,
+			"scaleZ": 0.4,
 			"source": {
 				"$name": "AutoCorrect",
 				"$args": [-1, 1],

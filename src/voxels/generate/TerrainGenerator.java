@@ -20,7 +20,7 @@ public class TerrainGenerator {
 		terrain = setupNoiseGenerator(seed);
 	}
 	
-	private Module setupNoiseGenerator(long seed) {
+	private static Module setupNoiseGenerator(long seed) {
 		JsonToModule parser;
 		try {
 			parser = new JsonToModule(
