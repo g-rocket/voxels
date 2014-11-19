@@ -1,0 +1,33 @@
+{
+	"groundGradient": {
+		"$name": "Gradient",
+		"gradient": [0, 0, 0, 1, 0, 0]
+	},
+	"mountainTerrain": {
+		"$name": "TranslateDomain",
+		"axisYSource": {
+			"$name": "ScaleDomain",
+			"scaleY": 0.4,
+			"source": {
+				"$name": "AutoCorrect",
+				"$args": [-1, 1],
+				"source": {
+					"$name": "Fractal",
+					"$args": ["FractalType.RIDGEMULTI", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+					"numOctaves": 8,
+					"frequency": 1,
+					"seed": "$seed"
+				},
+				"%calculate": []
+			}
+		},
+		"source": "groundGradient"
+	},
+	"test": {
+		"$name": "Select",
+		"lowSource": "BlockType.AIR",
+		"highSource": "BlockType.ROCK",
+		"threshold": 0.5,
+		"controlSource": "mountainTerrain"
+	}
+}

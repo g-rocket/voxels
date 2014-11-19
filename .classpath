@@ -6,8 +6,6 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="src/assets_for_voxel/MatDefs"/>
-	<classpathentry kind="src" path="src/assets_for_voxel/Textures"/>
 	<classpathentry including="**/*.java" kind="src" path="lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/google-guava"/>
