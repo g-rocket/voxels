@@ -48,9 +48,10 @@ public class VoxelWorld extends SimpleApplication {
         rootNode.attachChild(broken);
         */
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
-        for(Coord3 c: Coord3.range(new Coord3(-1,-1,0), new Coord3(1,1,16))) {
+        for(Coord3 c: Coord3.range(new Coord3(-2,-2,-2), new Coord3(3,3,2))) {
             world.getChunk(c);
         }
+        System.out.println("done generating and loading chunks");
         attachCoordinateAxes(Vector3f.ZERO);
     }
 

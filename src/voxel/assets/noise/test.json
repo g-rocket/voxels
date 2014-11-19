@@ -3,40 +3,53 @@
 		"$module": "Gradient",
 		"gradient": [0, 0, 0, 0, 0, 1]
 	},
+	"mountainZScale": {
+		"$module": "ScaleDomain",
+		"scaleZ": 0.1,
+		"source": "mountainScale"
+	},
+	"mountainScale": {
+		"$module": "ScaleOffset",
+		"scale": 10,
+		"offset": 1.5,
+		"source": "mountainShapeFractal"
+	},
+	"mountainAutoCorrect": {
+		"$module": "AutoCorrect",
+		"$args": [-1, 1],
+		"samples": 100000,
+		"%calculate": [],
+		"source": "mountainShapeFractal"
+	},
+	"mountainShapeFractal": {
+		"$module": "Fractal",
+		"$args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+		"numOctaves": 8,
+		"frequency": 0.2,
+		"seed": "$seed"
+	},
 	"mountainTerrain": {
 		"$module": "TranslateDomain",
-		"axisZSource": {
-			"#name": "mountainZScale",
-			"$module": "ScaleDomain",
-			"scaleZ": 0.1,
-			"source": {
-				"#name": "mountainScale",
-				"$module": "ScaleOffset",
-				"scale": 0.45,
-				"offset": 0.15,
-				"source": {
-					"#name": "mountainAutoCorrect",
-					"$module": "AutoCorrect",
-					"$args": [-1, 1],
-					"source": {
-						"#name": "mountainShapeFractal",
-						"$module": "Fractal",
-						"$args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
-						"numOctaves": 8,
-						"frequency": 1,
-						"seed": "$seed"
-					},
-					"%calculate": []
-				}
-			}
-		},
-		"source": "groundGradient"
+		"source": "groundGradient",
+		"axisZSource": "mountainZScale"
 	},
 	"test": {
 		"$module": "Select",
-		"lowSource": "BlockType.AIR",
-		"highSource": "BlockType.ROCK",
-		"threshold": 0.5,
+		"lowSource": {
+			"$module": "Select",
+			"threshold": 0,
+			"lowSource": "BlockType.ROCK",
+			"highSource": {
+				"$module": "Select",
+				"threshold": 10,
+				"lowSource": "BlockType.DIRT",
+				"highSource": "BlockType.GRASS",
+				"controlSource": "mountainTerrain"
+			},
+			"controlSource": "mountainTerrain"
+		},
+		"highSource": "BlockType.AIR",
+		"threshold": 11,
 		"controlSource": "mountainTerrain"
 	}
 }
