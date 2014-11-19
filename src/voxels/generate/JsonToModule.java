@@ -30,7 +30,7 @@ public class JsonToModule {
 
 	@SuppressWarnings("unchecked")
 	private Module parseModule(JsonObject data) {
-		String name = data.get("$name").getAsString();
+		String name = data.get("$module").getAsString();
 		JsonArray argsData = data.getAsJsonArray("$args"); // might be null?
 		Module module = null;
 		try {
@@ -56,7 +56,7 @@ public class JsonToModule {
 		int endOfSet = 0;
 		for(Map.Entry<String, JsonElement> e: data.entrySet()) {
 			String command = e.getKey();
-			if(command.startsWith("$")) continue;
+			if(command.startsWith("$") || command.startsWith("#")) continue;
 			boolean isSet = !command.startsWith("%");
 			if(isSet) {
 				command = "set" + command.substring(0, 1).toUpperCase() + command.substring(1);
