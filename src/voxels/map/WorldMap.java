@@ -20,13 +20,13 @@ public class WorldMap {
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
 	private final Node worldNode;
 	public final Material blockMaterial;
-	private final TerrainGenerater terrainGenerater;
+	private final TerrainGenerator terrainGenerator;
 	
 	public WorldMap(Node worldNode, Material blockMaterial) {
 		chunkSize = new Coord3(16,16,16);
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
-		this.terrainGenerater = new TerrainGenerater();
+		this.terrainGenerator = new TerrainGenerator();
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -50,7 +50,7 @@ public class WorldMap {
 	}
 	
 	private Chunk generateChunk(Coord3 chunkPos) {
-		Chunk c = new Chunk(chunkPos, this, terrainGenerater);
+		Chunk c = new Chunk(chunkPos, this, terrainGenerator);
 		map.put(chunkPos, c);
 		worldNode.attachChild(c.getGeometry());
 		return c;

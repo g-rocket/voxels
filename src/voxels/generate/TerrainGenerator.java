@@ -5,7 +5,25 @@ import java.util.*;
 import voxels.block.*;
 import voxels.map.*;
 
-public class TerrainGenerater {
+import com.sudoplay.joise.*;
+import com.sudoplay.joise.module.*;
+
+public class TerrainGenerator {
+	private final Module terrain;
+	
+	public TerrainGenerator() {
+		this(new Random().nextLong());
+	}
+	
+	public TerrainGenerator(long seed) {
+		terrain = setupNoiseGenerator(seed);
+	}
+	
+	private static Module setupNoiseGenerator(long seed) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	Random r = new Random();
 	public BlockType getBlockAtPosistion(Coord3 pos) {
 		r.setSeed((long)pos.x | ((long)pos.y << 32));
