@@ -1,29 +1,23 @@
 package voxels;
 
+import static voxels.map.Coord3.*;
+
 import java.awt.*;
-import java.util.*;
 
 import voxels.block.*;
 import voxels.block.texture.*;
 import voxels.map.*;
 import voxels.meshconstruction.*;
 
-import com.google.common.primitives.Ints;
-import com.jme3.app.SimpleApplication;
-import com.jme3.asset.AssetManager;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState;
-import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector2f;
-import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.Mesh;
-import com.jme3.scene.VertexBuffer.Type;
-import com.jme3.scene.debug.Arrow;
+import com.jme3.app.*;
+import com.jme3.asset.*;
+import com.jme3.material.*;
+import com.jme3.math.*;
+import com.jme3.scene.*;
+import com.jme3.scene.debug.*;
 import com.jme3.scene.shape.*;
-import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
-import com.jme3.util.BufferUtils;
+import com.jme3.system.*;
+import com.jme3.texture.*;
 
 /**
  * Created by didyouloseyourdog on 8/10/14.
@@ -49,7 +43,7 @@ public class VoxelWorld extends SimpleApplication {
         rootNode.attachChild(broken);
         */
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
-        for(Coord3 c: Coord3.range(new Coord3(-1,-1,-2), new Coord3(2,2,1))) {
+        for(Coord3 c: Coord3.range(c3(-1,-1,-2), c3(3,3,3))) {
             world.getChunk(c);
         }
         /*Thread t = new Thread(new Runnable(){public void run(){

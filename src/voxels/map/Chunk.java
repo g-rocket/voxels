@@ -1,20 +1,19 @@
 package voxels.map;
 
-import java.util.*;
+import static voxels.map.Coord3.*;
 
-import com.google.common.collect.*;
-import com.jme3.renderer.*;
-import com.jme3.scene.*;
-import com.jme3.scene.control.*;
+import java.util.*;
 
 import voxels.block.*;
 import voxels.block.texture.*;
 import voxels.generate.*;
-import voxels.map.*;
 import voxels.map.collections.*;
 import voxels.meshconstruction.*;
 import voxels.util.*;
-import static voxels.util.StaticUtils.*;
+
+import com.jme3.renderer.*;
+import com.jme3.scene.*;
+import com.jme3.scene.control.*;
 
 /*
  * Deals with a single chunk of information
@@ -43,73 +42,25 @@ public class Chunk extends AbstractControl {
 	}
 
 	public Iterable<Coord3> blocksPoss() {
-		return Coord3.range(position, position.plus(world.chunkSize));
-	}
-	
-	private class IterableStartedQueue<E> extends AbstractQueue<E> {
-		private final Iterator<E> starter;
-		private final Queue<E> backing = new LinkedList<>();
-
-		public IterableStartedQueue(Iterator<E> starter) {
-			this.starter = starter;
-		}
-
-		public IterableStartedQueue(Iterable<E> starter) {
-			this.starter = starter.iterator();
-		}
-		
-		@Override
-		public boolean offer(E e) {
-			return backing.offer(e);
-		}
-
-		@Override
-		public E poll() {
-			return starter.hasNext()? starter.next(): backing.poll();
-		}
-
-		@Override
-		public E peek() {
-			throw new UnsupportedOperationException("Can't peek an iterable");
-		}
-
-		@Override
-		public Iterator<E> iterator() {
-			return new Iterator<E>() {
-
-				@Override
-				public boolean hasNext() {
-					return starter.hasNext() || !backing.isEmpty();
-				}
-
-				@Override
-				public E next() {
-					return poll();
-				}
-				
-			};
-		}
-
-		@Override
-		public int size() {
-			return Integer.MAX_VALUE; // unknown
-		}
+		return Coord3.range(position, world.chunkSize);
 	}
 	
 	private void buildMesh() {
+		int mSize = 0;
         MeshSet mset = new MeshSet();
-        Coord3 csm1 = world.chunkSize.minus(new Coord3(1,1,1));
+        Coord3 csm1 = world.chunkSize.minus(c3(1,1,1));
 		@SuppressWarnings("unchecked")
-		Queue<Coord3> toMesh = new IterableStartedQueue<>(Iterables.concat(
-				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(1,1,0))).plus(new Coord3(0,0,1))),
-				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(1,0,1))).plus(new Coord3(0,1,0))),
-				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(0,1,1))).plus(new Coord3(1,0,0))),
-				Coord3.range(position.plus(csm1.times(new Coord3(0,0,1))), position.plus(world.chunkSize)),
-				Coord3.range(position.plus(csm1.times(new Coord3(0,1,0))), position.plus(world.chunkSize)),
-				Coord3.range(position.plus(csm1.times(new Coord3(1,0,0))), position.plus(world.chunkSize))
-		));
+		List<Coord3> toMesh = new ListStartedList<>(
+				Coord3.range(position, world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1))),
+				Coord3.range(position, world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0))),
+				Coord3.range(position, world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0))),
+				Coord3.range(position.plus(csm1.times(c3(0,0,1))), world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1))),
+				Coord3.range(position.plus(csm1.times(c3(0,1,0))), world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0))),
+				Coord3.range(position.plus(csm1.times(c3(1,0,0))), world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0)))
+		);
 		Set<Coord3> meshed = new HashSet<>();
         for(Coord3 blockPos: toMesh){
+        	if(meshed.contains(blockPos)) continue;
         	meshed.add(blockPos);
         	BlockType block = data.get(blockPos);
         	for(Direction dir: Direction.values()) {
