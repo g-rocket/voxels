@@ -2,7 +2,7 @@ package voxels.block.texture;
 
 import voxels.map.*;
 
-import com.jme3.math.Vector3f;
+import com.jme3.math.*;
 
 public enum Direction {
 	XNEG(-1, 0, 0,  -1, 1,-1,  -1, 1, 1,  -1,-1, 1,  -1,-1,-1),
@@ -14,12 +14,16 @@ public enum Direction {
 	
 	public final int dx,dy,dz;
 	
+	public final Coord3 c3;
+	
 	private final Vector3f[] cornerOffsets = new Vector3f[4];
 	
 	private Direction(int dx, int dy, int dz, int... cornerdirs) {
 		this.dx = dx;
 		this.dy = dy;
 		this.dz = dz;
+		
+		this.c3 = new Coord3(dx, dy, dz);
 		
 		for(int i = 0; i < cornerOffsets.length; i++) {
 			cornerOffsets[i] = new Vector3f(cornerdirs[i*3]/2f, cornerdirs[i*3 + 1]/2f, cornerdirs[i*3 + 2]/2f);
