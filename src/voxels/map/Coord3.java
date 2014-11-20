@@ -2,6 +2,8 @@ package voxels.map;
 
 import java.util.*;
 
+import voxels.block.texture.*;
+
 import com.jme3.math.Vector3f;
 
 public class Coord3 {
@@ -19,6 +21,10 @@ public class Coord3 {
 	
 	public Coord3 plus(Coord3 c) {
 		return new Coord3(x+c.x, y+c.y, z+c.z);
+	}
+	
+	public Coord3 plus(Direction d) {
+		return new Coord3(x+(d.dx), y+(d.dy), z+(d.dz));
 	}
 	
 	public static Coord3 add(Coord3 c1, Coord3 c2) {

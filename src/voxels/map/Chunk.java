@@ -27,35 +27,9 @@ public class Chunk extends AbstractControl {
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
 		this.position = position;
 		this.world = world;
-		data = new LazyGeneratedChunkData(world.chunkSize, position.times(world.chunkSize), terrainGenerator);
-		blocks = new ShiftedUnmodifiableChunkData(data, position.times(world.chunkSize));
-		/*for(int x = 0; x < world.chunkSize.x; x++) {
-			for(int y = 0; y < world.chunkSize.y; y++) {
-				for(int z = 0; z < world.chunkSize.z; z++) {
-					data.set(terrainGenerator.getBlockAtPosistion(getGlobalPos(x, y, z)), new Coord3(x,y,z));
-				}
-			}
-		}*/
+		data = new LazyGeneratedChunkData(world.chunkSize, position, terrainGenerator);
+		blocks = new UnmodifiableChunkData(data);
 		meshDirty = true;
-	}
-	
-	public BlockType getBlock(Coord3 blockPos) {
-		return getBlockLocal(
-				mod(blockPos.x, world.chunkSize.x),
-				mod(blockPos.y, world.chunkSize.y),
-				mod(blockPos.z, world.chunkSize.z));
-	}
-	
-	private boolean isValidLocal(int x, int y, int z) {
-		return data.indexWithinBounds(x, y, z);
-	}
-	
-	private BlockType getBlockLocal(int x, int y, int z) {
-		return data.get(x, y, z);
-	}
-
-	private BlockType getBlockLocal(Coord3 localPos) {
-		return getBlockLocal(localPos.x, localPos.y, localPos.z);
 	}
 
 	@Override
@@ -65,32 +39,23 @@ public class Chunk extends AbstractControl {
 			meshDirty = false;
 		}
 	}
-	
-	private Coord3 getGlobalPos(int x, int y, int z) {
-		return new Coord3(
-				x + (position.x*world.chunkSize.x),
-				y + (position.y*world.chunkSize.y),
-				z + (position.z*world.chunkSize.z));
-	}
 
+	public Iterable<Coord3> blocksPoss() {
+		return Coord3.range(position.times(world.chunkSize), position.plus(new Coord3(1,1,1)).times(world.chunkSize));
+	}
+	
 	private void buildMesh() {
         MeshSet mset = new MeshSet();
-        
-        for(int x = 0; x < world.chunkSize.x; x++) {
-        	for(int y = 0; y < world.chunkSize.y; y++) {
-        		for(int z = 0; z < world.chunkSize.z; z++) {
-        			BlockType block = getBlockLocal(x, y, z);
-        			for(Direction dir: Direction.values()) {
-        				if(block.isOpaque &&
-        				   (!isValidLocal(x+dir.dx, y+dir.dy, z+dir.dz) ||
-        				   !getBlockLocal(x+dir.dx, y+dir.dy, z+dir.dz).isOpaque)) {
-        					BlockMeshUtil.addFaceMeshData(getGlobalPos(x,y,z), block, mset, dir, .5f+(z + (position.z*world.chunkSize.z))/256f);
-        				}
-        			}
+        for(Coord3 blockPos: blocksPoss()){
+        	BlockType block = data.get(blockPos);
+        	for(Direction dir: Direction.values()) {
+        		if(block.isOpaque &&
+        				(!data.indexWithinBounds(blockPos.plus(dir)) ||
+        				 !data.get(blockPos.plus(dir)).isOpaque)) {
+        			BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
         		}
         	}
         }
-        
         MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
 	}
 

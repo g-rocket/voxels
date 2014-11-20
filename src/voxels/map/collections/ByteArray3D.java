@@ -27,10 +27,6 @@ public class ByteArray3D implements ChunkData {
     	}
     	throw new IllegalArgumentException("i is not a positive integer power of two");
     }
- 
-    public BlockType get(Coord3 pos) {
-        return get(pos.x, pos.y, pos.z);//convenience method.
-    }
     
     /*
      * This bitwise index look up is the same as [y * (size.x*size.z) + z * (size.x) + x]
@@ -39,10 +35,6 @@ public class ByteArray3D implements ChunkData {
     	//System.out.printf("%b,%d,%d,%d\n",indexWithinBounds(x, y, z),x,y,z);
     	//if(!indexWithinBounds(x, y, z)) throw new IndexOutOfBoundsException(String.format("(%d,%d,%d) is invalid",x,y,z));
         return BlockType.getBlock(data[y*(size.x*size.z) + z*size.x + x]);
-    }
-    
-    public void set(BlockType obj, Coord3 pos) {
-        set(obj, pos.x, pos.y, pos.z); //convenience method. no need to change.
     }
     
     public void set(BlockType obj, int x, int y, int z) {

@@ -30,7 +30,7 @@ public class WorldMap {
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
-		return getChunk(chunkPos(blockPos)).getBlock(blockPos);
+		return getChunk(chunkPos(blockPos)).blocks.get(blockPos);
 	}
 	
 	private Coord3 chunkPos(Coord3 blockPos) {
