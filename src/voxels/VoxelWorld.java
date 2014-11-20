@@ -1,6 +1,7 @@
 package voxels;
 
 import java.awt.*;
+import java.util.*;
 
 import voxels.block.*;
 import voxels.block.texture.*;
@@ -48,10 +49,29 @@ public class VoxelWorld extends SimpleApplication {
         rootNode.attachChild(broken);
         */
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
-        for(Coord3 c: Coord3.range(new Coord3(-2,-2,-2), new Coord3(3,3,2))) {
+        for(Coord3 c: Coord3.range(new Coord3(-1,-1,-2), new Coord3(2,2,1))) {
             world.getChunk(c);
         }
-        attachCoordinateAxes(Vector3f.ZERO);
+        /*Thread t = new Thread(new Runnable(){public void run(){
+        try {
+			Thread.sleep(15000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+        Random r = new Random();
+		System.out.println();
+        while(true) {
+            world.getChunk(new Coord3(r.nextInt(5) - 2, r.nextInt(5) - 2, r.nextInt(3) - 2)).meshDirty = true;
+            try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+        }
+        }});
+        t.setDaemon(true);
+        t.start();*/
+        //attachCoordinateAxes(Vector3f.ZERO);
     }
 
     private static void ScreenSettings(VoxelWorld app, boolean fullScreen) {

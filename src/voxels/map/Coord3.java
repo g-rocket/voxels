@@ -24,7 +24,7 @@ public class Coord3 {
 	}
 	
 	public Coord3 plus(Direction d) {
-		return new Coord3(x+(d.dx), y+(d.dy), z+(d.dz));
+		return new Coord3(x+d.dx, y+d.dy, z+d.dz);
 	}
 	
 	public static Coord3 add(Coord3 c1, Coord3 c2) {
@@ -96,6 +96,11 @@ public class Coord3 {
 			return this;
 		}
 		
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("(%d, %d, %d)", x, y, z);
 	}
 	
 	@Override

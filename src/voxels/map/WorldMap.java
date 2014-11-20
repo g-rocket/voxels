@@ -23,7 +23,7 @@ public class WorldMap {
 	private final TerrainGenerator terrainGenerator;
 	
 	public WorldMap(Node worldNode, Material blockMaterial) {
-		chunkSize = new Coord3(16,16,16);
+		chunkSize = new Coord3(32,32,16);
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
 		this.terrainGenerator = new TerrainGenerator();

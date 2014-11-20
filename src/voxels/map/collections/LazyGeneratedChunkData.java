@@ -10,7 +10,7 @@ public class LazyGeneratedChunkData implements ChunkData {
 	private final Coord3 size;
 	private final Coord3 position;
 	private final TerrainGenerator generator;
-	
+
 	public LazyGeneratedChunkData(Coord3 size, Coord3 position, TerrainGenerator generator) {
 		data = new ByteArray3D(size);
 		this.size = size;
@@ -21,34 +21,37 @@ public class LazyGeneratedChunkData implements ChunkData {
 	@Override
 	public BlockType get(int x, int y, int z) {
 		BlockType block;
-		try {
-			block = data.get(
-					StaticUtils.mod(x, size.x), 
-					StaticUtils.mod(y, size.y), 
-					StaticUtils.mod(z, size.z));
-		} catch(IndexOutOfBoundsException e) {
-			throw new RuntimeException(String.format("(%d, %d, %d) -> (%d, %d, %d), which is out of bounds",x,y,z,
-					StaticUtils.mod(x, size.x), 
-					StaticUtils.mod(y, size.y), 
-					StaticUtils.mod(z, size.z)),e);
-		}
+		block = data.get(
+				StaticUtils.mod(x, size.x), 
+				StaticUtils.mod(y, size.y), 
+				StaticUtils.mod(z, size.z));
 		if(block.equals(BlockType.UNKNOWN)) {
-			block = generator.getBlockAtPosistion(new Coord3(x, y, z));
+			Coord3 pos = new Coord3(x, y, z);
+			block = generator.getBlockAtPosistion(pos);
+			if(indexWithinBounds(x, y, z)) set(block, pos);
 		}
 		return block;
 	}
-
+	
+	@Override
+	public void set(BlockType obj, Coord3 pos) {
+		//System.out.println(pos+" "+position+" "+pos.minus(position));
+		data.set(obj, pos.minus(position));
+	}
+	
 	@Override
 	public void set(BlockType obj, int x, int y, int z) {
-		data.set(obj, x, y, z);
+		set(obj, new Coord3(x, y, z));
 	}
-
+	
+	@Override
+	public boolean indexWithinBounds(Coord3 pos) {
+		return data.indexWithinBounds(pos.minus(position));
+	}
+	
 	@Override
 	public boolean indexWithinBounds(int x, int y, int z) {
-		return data.indexWithinBounds(
-				x - (position.x * size.x), 
-				y - (position.y * size.y), 
-				z - (position.z * size.z));
+		return indexWithinBounds(new Coord3(x, y, z));
 	}
 
 }

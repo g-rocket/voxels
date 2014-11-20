@@ -1,7 +1,8 @@
 package voxels.map;
 
-import java.awt.*;
+import java.util.*;
 
+import com.google.common.collect.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.*;
@@ -12,6 +13,7 @@ import voxels.generate.*;
 import voxels.map.*;
 import voxels.map.collections.*;
 import voxels.meshconstruction.*;
+import voxels.util.*;
 import static voxels.util.StaticUtils.*;
 
 /*
@@ -25,9 +27,9 @@ public class Chunk extends AbstractControl {
 	public boolean meshDirty;
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
-		this.position = position;
+		this.position = position.times(world.chunkSize);
 		this.world = world;
-		data = new LazyGeneratedChunkData(world.chunkSize, position, terrainGenerator);
+		data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator);
 		blocks = new UnmodifiableChunkData(data);
 		meshDirty = true;
 	}
@@ -41,22 +43,91 @@ public class Chunk extends AbstractControl {
 	}
 
 	public Iterable<Coord3> blocksPoss() {
-		return Coord3.range(position.times(world.chunkSize), position.plus(new Coord3(1,1,1)).times(world.chunkSize));
+		return Coord3.range(position, position.plus(world.chunkSize));
+	}
+	
+	private class IterableStartedQueue<E> extends AbstractQueue<E> {
+		private final Iterator<E> starter;
+		private final Queue<E> backing = new LinkedList<>();
+
+		public IterableStartedQueue(Iterator<E> starter) {
+			this.starter = starter;
+		}
+
+		public IterableStartedQueue(Iterable<E> starter) {
+			this.starter = starter.iterator();
+		}
+		
+		@Override
+		public boolean offer(E e) {
+			return backing.offer(e);
+		}
+
+		@Override
+		public E poll() {
+			return starter.hasNext()? starter.next(): backing.poll();
+		}
+
+		@Override
+		public E peek() {
+			throw new UnsupportedOperationException("Can't peek an iterable");
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+			return new Iterator<E>() {
+
+				@Override
+				public boolean hasNext() {
+					return starter.hasNext() || !backing.isEmpty();
+				}
+
+				@Override
+				public E next() {
+					return poll();
+				}
+				
+			};
+		}
+
+		@Override
+		public int size() {
+			return Integer.MAX_VALUE; // unknown
+		}
 	}
 	
 	private void buildMesh() {
         MeshSet mset = new MeshSet();
-        for(Coord3 blockPos: blocksPoss()){
+        Coord3 csm1 = world.chunkSize.minus(new Coord3(1,1,1));
+		@SuppressWarnings("unchecked")
+		Queue<Coord3> toMesh = new IterableStartedQueue<>(Iterables.concat(
+				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(1,1,0))).plus(new Coord3(0,0,1))),
+				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(1,0,1))).plus(new Coord3(0,1,0))),
+				Coord3.range(position, position.plus(world.chunkSize.times(new Coord3(0,1,1))).plus(new Coord3(1,0,0))),
+				Coord3.range(position.plus(csm1.times(new Coord3(0,0,1))), position.plus(world.chunkSize)),
+				Coord3.range(position.plus(csm1.times(new Coord3(0,1,0))), position.plus(world.chunkSize)),
+				Coord3.range(position.plus(csm1.times(new Coord3(1,0,0))), position.plus(world.chunkSize))
+		));
+		Set<Coord3> meshed = new HashSet<>();
+        for(Coord3 blockPos: toMesh){
+        	meshed.add(blockPos);
         	BlockType block = data.get(blockPos);
         	for(Direction dir: Direction.values()) {
-        		if(block.isOpaque &&
-        				(!data.indexWithinBounds(blockPos.plus(dir)) ||
-        				 !data.get(blockPos.plus(dir)).isOpaque)) {
-        			BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
+        		Coord3 blockPos2 = blockPos.plus(dir);
+        		BlockType block2 = data.get(blockPos2);
+        		if(block.isOpaque) {
+        			if(!data.indexWithinBounds(blockPos2) || !block2.isOpaque) {
+        				BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
+        			}
+        		} else {
+            		if(data.indexWithinBounds(blockPos2) && !meshed.contains(blockPos2)) {
+            			toMesh.add(blockPos2);
+            		}
         		}
         	}
         }
         MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        System.out.print(".");
 	}
 
 	@Override
