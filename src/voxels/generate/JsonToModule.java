@@ -79,7 +79,7 @@ public class JsonToModule {
 				try {
 					m = module.getClass().getMethod(command, argsTypes);
 				} catch(NoSuchMethodException ex2) {
-					throw new RuntimeException(command+" with "+Arrays.toString(argsTypes)+" does not exist", ex2);
+					throw new RuntimeException(command+" on "+module.getClass().getName()+" with "+Arrays.toString(argsTypes)+" does not exist", ex2);
 				}
 			} catch(SecurityException ex) {
 				throw new RuntimeException(ex);
