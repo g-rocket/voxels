@@ -33,7 +33,7 @@ public class Coord3 {
 		return c1.minus(c2);
 	}
 
-	public Coord3 dot(Coord3 c) {
+	public Coord3 times(Coord3 c) {
 		return new Coord3(x * c.x, y * c.y, z * c.z);
 	}
 	

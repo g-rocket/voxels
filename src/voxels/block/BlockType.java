@@ -9,8 +9,9 @@ import static voxels.block.texture.Direction.*;
 import static voxels.block.texture.TextureOrientation.*;
 
 public enum BlockType {
-	UNKNOWN(255,  true,  true,  true,  XPOS,3,0,U,  XNEG,3,0,U,  YPOS,3,0,U,  YNEG,3,0,U,  ZPOS,3,0,U, ZNEG,3,0,U),
-	AIR    (  0, false, false, false),
+	UNKNOWN(  0,  true, false, false),
+	AIR    (255, false, false, false),
+	SHADOW (254,  true,  true,  true,  XPOS,3,0,U,  XNEG,3,0,U,  YPOS,3,0,U,  YNEG,3,0,U,  ZPOS,3,0,U, ZNEG,3,0,U),
 	DIRT   (  1,  true,  true,  true,  XPOS,0,1,U,  XNEG,0,1,U,  YPOS,0,1,U,  YNEG,0,1,U,  ZPOS,0,1,U, ZNEG,0,1,U),
 	ROCK   (  2,  true,  true,  true,  XPOS,1,1,U,  XNEG,1,1,U,  YPOS,1,1,U,  YNEG,1,1,U,  ZPOS,1,1,U, ZNEG,1,1,U),
 	GRASS  (  3,  true,  true,  true,  XPOS,0,3,U,  XNEG,0,3,U,  YPOS,0,3,U,  YNEG,0,3,U,  ZPOS,0,0,U, ZNEG,0,1,U);

@@ -1,5 +1,6 @@
 package voxels.map.collections;
 
+import voxels.block.*;
 import voxels.map.*;
 
 public class ShiftedUnmodifiableChunkData implements ChunkData {
@@ -12,22 +13,22 @@ public class ShiftedUnmodifiableChunkData implements ChunkData {
 	}
 
 	@Override
-	public byte get(Coord3 pos) {
-		return data.get(pos);
+	public BlockType get(Coord3 pos) {
+		return get(pos.x, pos.y, pos.z);
 	}
 
 	@Override
-	public byte get(int x, int y, int z) {
-		return data.get(x, y, z);
+	public BlockType get(int x, int y, int z) {
+		return data.get(x - shift.x, y - shift.y, z - shift.z);
 	}
 
 	@Override
-	public void set(byte obj, Coord3 pos) {
+	public void set(BlockType obj, Coord3 pos) {
 		throw new UnsupportedOperationException("You can't call 'set' on an unmodifiable chunk data");
 	}
 
 	@Override
-	public void set(byte obj, int x, int y, int z) {
+	public void set(BlockType obj, int x, int y, int z) {
 		throw new UnsupportedOperationException("You can't call 'set' on an unmodifiable chunk data");
 	}
 

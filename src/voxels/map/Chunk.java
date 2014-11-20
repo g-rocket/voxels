@@ -27,15 +27,15 @@ public class Chunk extends AbstractControl {
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
 		this.position = position;
 		this.world = world;
-		data = new ByteArray3D(world.chunkSize);
-		blocks = new ShiftedUnmodifiableChunkData(data, position.dot(world.chunkSize));
-		for(int x = 0; x < world.chunkSize.x; x++) {
+		data = new LazyGeneratedChunkData(world.chunkSize, position.times(world.chunkSize), terrainGenerator);
+		blocks = new ShiftedUnmodifiableChunkData(data, position.times(world.chunkSize));
+		/*for(int x = 0; x < world.chunkSize.x; x++) {
 			for(int y = 0; y < world.chunkSize.y; y++) {
 				for(int z = 0; z < world.chunkSize.z; z++) {
-					data.set(terrainGenerator.getBlockAtPosistion(getGlobalPos(x, y, z)).dataValue, new Coord3(x,y,z));
+					data.set(terrainGenerator.getBlockAtPosistion(getGlobalPos(x, y, z)), new Coord3(x,y,z));
 				}
 			}
-		}
+		}*/
 		meshDirty = true;
 	}
 	
@@ -51,7 +51,7 @@ public class Chunk extends AbstractControl {
 	}
 	
 	private BlockType getBlockLocal(int x, int y, int z) {
-		return BlockType.getBlock(data.get(x, y, z));
+		return data.get(x, y, z);
 	}
 
 	private BlockType getBlockLocal(Coord3 localPos) {
