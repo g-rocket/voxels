@@ -6,12 +6,14 @@
 	"mountainZScale": {
 		"$module": "ScaleDomain",
 		"scaleZ": 0.1,
+		"scaleX": 0.2,
+		"scaleY": 0.2,
 		"source": "mountainScale"
 	},
 	"mountainScale": {
 		"$module": "ScaleOffset",
-		"scale": 10,
-		"offset": 1.5,
+		"scale": 20,
+		"offset": 10,
 		"source": "mountainShapeFractal"
 	},
 	"mountainAutoCorrect": {
