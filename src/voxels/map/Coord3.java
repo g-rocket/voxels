@@ -2,8 +2,6 @@ package voxels.map;
 
 import java.util.*;
 
-import voxels.block.texture.*;
-
 import com.jme3.math.*;
 
 public class Coord3 {
@@ -23,10 +21,6 @@ public class Coord3 {
 		return new Coord3(x+c.x, y+c.y, z+c.z);
 	}
 	
-	public Coord3 plus(Direction d) {
-		return new Coord3(x+d.dx, y+d.dy, z+d.dz);
-	}
-	
 	public static Coord3 add(Coord3 c1, Coord3 c2) {
 		return c1.plus(c2);
 	}
@@ -41,6 +35,54 @@ public class Coord3 {
 
 	public Coord3 times(Coord3 c) {
 		return new Coord3(x * c.x, y * c.y, z * c.z);
+	}
+	
+	public static Coord3 multiply(Coord3 c1, Coord3 c2) {
+		return c1.times(c2);
+	}
+	
+	public Coord3 divBy(Coord3 c) {
+		return new Coord3(x / c.x, y / c.y, z / c.y);
+	}
+	
+	public static Coord3 divide(Coord3 c1, Coord3 c2) {
+		return c1.divBy(c2);
+	}
+	
+	public int dot(Coord3 c) {
+		return x*c.x + y*c.y + z*c.z;
+	}
+	
+	public static int dot(Coord3 c1, Coord3 c2) {
+		return c1.dot(c2);
+	}
+	
+	public Coord3 cross(Coord3 c) {
+		return new Coord3(
+				y*c.z - c.y*z,
+				z*c.x - c.z*x,
+				x*c.y - c.x*y
+		);
+	}
+	
+	public static Coord3 cross(Coord3 c1, Coord3 c2) {
+		return c1.cross(c2);
+	}
+	
+	public double length() {
+		return Math.sqrt(x*x + y*y + z*z);
+	}
+	
+	public static double length(Coord3 c) {
+		return c.length();
+	}
+	
+	public int volume() {
+		return x * y * z;
+	}
+	
+	public static int volume(Coord3 c) {
+		return c.volume();
 	}
 	
 	public static List<Coord3> range(Coord3 start, Coord3 size) {
@@ -69,7 +111,7 @@ public class Coord3 {
 		
 		@Override
 		public String toString() {
-			return "["+start+":"+start.plus(size)+", "+size+"]";
+			return "{["+start+":"+start.plus(size)+"], "+size+"}";
 		}
 		
 	}

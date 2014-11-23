@@ -64,7 +64,7 @@ public class Chunk extends AbstractControl {
         	meshed.add(blockPos);
         	BlockType block = data.get(blockPos);
         	for(Direction dir: Direction.values()) {
-        		Coord3 blockPos2 = blockPos.plus(dir);
+        		Coord3 blockPos2 = blockPos.plus(dir.c3);
         		BlockType block2 = data.get(blockPos2);
         		if(block.isOpaque) {
         			if(!data.indexWithinBounds(blockPos2) || !block2.isOpaque) {
