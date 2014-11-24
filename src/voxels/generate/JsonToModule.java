@@ -6,9 +6,6 @@ import java.util.*;
 import java.util.regex.*;
 
 import com.google.gson.*;
-
-import voxels.util.*;
-
 import com.sudoplay.joise.module.*;
 
 public class JsonToModule {
@@ -57,8 +54,8 @@ public class JsonToModule {
 		for(Map.Entry<String, JsonElement> e: data.entrySet()) {
 			String command = e.getKey();
 			if(command.startsWith("$") || command.startsWith("#")) continue;
-			boolean isSet = !command.startsWith("%");
-			if(isSet) {
+			boolean isCmd = command.startsWith(">");
+			if(!isCmd) {
 				command = "set" + command.substring(0, 1).toUpperCase() + command.substring(1);
 			} else {
 				command = command.substring(1);
@@ -90,8 +87,10 @@ public class JsonToModule {
 			} else {
 				args = new Object[]{getArg(e.getValue(), argsTypes[0])};
 			}
-			if(isSet) {
-				commands.add(endOfSet++, new Tuple<Method, Object[]>(m, args));
+			if(!isCmd) {
+				commands.add(new Tuple<Method, Object[]>(m, args));
+			} else {
+				commands.add(0, new Tuple<Method, Object[]>(m, args));
 			}
 		}
 		for(Tuple<Method, Object[]> t: commands) {

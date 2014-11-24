@@ -20,7 +20,7 @@
 		"$module": "AutoCorrect",
 		"$args": [-1, 1],
 		"samples": 100000,
-		"%calculate": [],
+		">calculate": [],
 		"source": "mountainShapeFractal"
 	},
 	"mountainShapeFractal": {
