@@ -37,12 +37,12 @@
 	},
 	"dirtGrassSelect": {
 		"$module": "Select",
-		"threshold": "BlockType.AIR",
+		"threshold": 11,
 		"lowSource": "BlockType.DIRT",
 		"highSource": "BlockType.GRASS",
 		"controlSource": {
 			"$module": "TranslateDomain",
-			"ZSource": 1,
+			"axisZSource": 1,
 			"source": "mountainTerrain"
 		}
 	},
