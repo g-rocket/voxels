@@ -1,23 +1,23 @@
 {
 	"groundGradient": {
-		"$module": "Gradient",
+		"%module": "Gradient",
 		"gradient": [0, 0, 0, 0, 0, 1]
 	},
 	"mountainTerrain": {
-		"$module": "TranslateDomain",
+		"%module": "TranslateDomain",
 		"source": "groundGradient",
 		"axisZSource": {
-			"$module": "ScaleDomain",
-			"scaleZ": 0.3,
+			"%module": "ScaleDomain",
+			"scaleZ": 0.1,
 			"scaleX": 0.2,
 			"scaleY": 0.2,
 			"source": {
-				"$module": "ScaleOffset",
+				"%module": "ScaleOffset",
 				"scale": 20,
 				"offset": 10,
 				"source": {
-					"$module": "Fractal",
-					"$args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+					"%module": "Fractal",
+					"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
 					"numOctaves": 8,
 					"frequency": 0.2,
 					"seed": "$seed"
@@ -26,20 +26,20 @@
 		}
 	},
 	"dirtGrassSelect": {
-		"$module": "Select",
+		"%module": "Select",
 		"threshold": 11,
 		"lowSource": "BlockType.DIRT",
 		"highSource": "BlockType.GRASS",
 		"controlSource": {
-			"$module": "TranslateDomain",
+			"%module": "TranslateDomain",
 			"axisZSource": 1,
 			"source": "mountainTerrain"
 		}
 	},
 	"test": {
-		"$module": "Select",
+		"%module": "Select",
 		"lowSource": {
-			"$module": "Select",
+			"%module": "Select",
 			"threshold": 0,
 			"lowSource": "BlockType.ROCK",
 			"highSource": "dirtGrassSelect",
