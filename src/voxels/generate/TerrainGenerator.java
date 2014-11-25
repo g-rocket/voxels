@@ -25,7 +25,7 @@ public class TerrainGenerator {
 				new BufferedReader(
 						new InputStreamReader(this.getClass().getResourceAsStream("testTerrain.json"))
 				), seed);
-		parser.parse();
+		//parser.parse();
 		return parser.getModule("test");
 	}
 

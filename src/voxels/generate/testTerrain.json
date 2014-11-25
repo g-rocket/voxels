@@ -5,7 +5,7 @@
 	},
 	"mountainZScale": {
 		"$module": "ScaleDomain",
-		"scaleZ": 0.1,
+		"scaleZ": 0.3,
 		"scaleX": 0.2,
 		"scaleY": 0.2,
 		"source": "mountainScale"
@@ -35,19 +35,24 @@
 		"source": "groundGradient",
 		"axisZSource": "mountainZScale"
 	},
+	"dirtGrassSelect": {
+		"$module": "Select",
+		"threshold": "BlockType.AIR",
+		"lowSource": "BlockType.DIRT",
+		"highSource": "BlockType.GRASS",
+		"controlSource": {
+			"$module": "ModuleTranslateDomain",
+			"ZSource": 1,
+			"source": "mountainTerrain"
+		}
+	},
 	"test": {
 		"$module": "Select",
 		"lowSource": {
 			"$module": "Select",
 			"threshold": 0,
 			"lowSource": "BlockType.ROCK",
-			"highSource": {
-				"$module": "Select",
-				"threshold": 10,
-				"lowSource": "BlockType.DIRT",
-				"highSource": "BlockType.GRASS",
-				"controlSource": "mountainTerrain"
-			},
+			"highSource": "dirtGrassSelect",
 			"controlSource": "mountainTerrain"
 		},
 		"highSource": "BlockType.AIR",
