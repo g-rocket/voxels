@@ -1,49 +1,84 @@
 {
+	"@IfSelect": {
+		"%module": "@MidSelect",
+		"controlSource": "$controlSource",
+		"lowThreshold": "$value",
+		"highThreshold": "$($value + 0.0000001)",
+		"lowSource": "$lessSource",
+		"highSource": "$moreSource",
+		"midSource": "$equalSource"
+	},
+	"@MidSelect": {
+		"%module": "Select",
+		"lowSource": {
+			"%module": "Select",
+			"threshold": "$lowThreshold",
+			"lowSource": "$lowSource",
+			"highSource": "$midSource",
+			"controlSource": "$controlSource"
+		},
+		"highSource": "$highSource",
+		"threshold": "$highThreshold",
+		"controlSource": "$controlSource"
+	},
 	"groundGradient": {
 		"%module": "Gradient",
 		"gradient": [0, 0, 0, 0, 0, 1]
 	},
 	"mountainTerrain": {
-		"%module": "TranslateDomain",
-		"source": "groundGradient",
-		"axisZSource": {
-			"%module": "ScaleDomain",
-			"scaleZ": 0.1,
-			"scaleX": 0.2,
-			"scaleY": 0.2,
-			"source": {
-				"%module": "ScaleOffset",
-				"scale": 20,
-				"offset": 10,
+		"%module": "Cache",
+		"source": {
+			"%module": "TranslateDomain",
+			"source": "groundGradient",
+			"axisZSource": {
+				"%module": "ScaleDomain",
+				"scaleZ": 0.1,
+				"scaleX": 0.2,
+				"scaleY": 0.2,
 				"source": {
-					"%module": "Fractal",
-					"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
-					"numOctaves": 8,
-					"frequency": 0.2,
-					"seed": "$seed"
+					"%module": "ScaleOffset",
+					"scale": 20,
+					"offset": 10,
+					"source": {
+						"%module": "Fractal",
+						"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+						"numOctaves": 8,
+						"frequency": 0.2,
+						"seed": "$seed"
+					}
 				}
 			}
 		}
 	},
+	"test": {
+		"%module": "@IfSelect",
+		"$source": "blocks",
+		"value": "BlockType.DIRT",
+		"moreSource": "$source",
+		"lessSource": "$source",
+		"equalSource": "dirtGrassSelect",
+		"controlSource": "$source"
+	},
 	"dirtGrassSelect": {
-		"%module": "Select",
-		"threshold": 11,
-		"lowSource": "BlockType.DIRT",
-		"highSource": "BlockType.GRASS",
+		"%module": "@IfSelect",
+		"value": "BlockType.AIR",
+		"moreSource": "BlockType.DIRT",
+		"lessSource": "BlockType.DIRT",
+		"equalSource": "BlockType.GRASS",
 		"controlSource": {
 			"%module": "TranslateDomain",
 			"axisZSource": 1,
-			"source": "mountainTerrain"
+			"source": "$source"
 		}
 	},
-	"test": {
+	"blocks": {
 		"%module": "Select",
 		"lowSource": {
 			"%module": "Select",
 			"threshold": 0,
 			"lowSource": "BlockType.ROCK",
-			"highSource": "dirtGrassSelect",
-			"controlSource": "mountainTerrain"
+			"highSource": "BlockType.DIRT",
+		"controlSource": "mountainTerrain"
 		},
 		"highSource": "BlockType.AIR",
 		"threshold": 11,
