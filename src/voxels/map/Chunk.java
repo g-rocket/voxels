@@ -44,6 +44,7 @@ public class Chunk extends AbstractControl {
 	
 	public void save(OutputStream output) throws IOException {
 		data.save(output);
+		output.close();
 		this.setEnabled(false);
 		this.getSpatial().removeFromParent();
 	}

@@ -3,6 +3,8 @@ package voxels;
 import static voxels.map.Coord3.*;
 
 import java.awt.*;
+import java.io.*;
+import java.util.*;
 
 import voxels.block.*;
 import voxels.block.texture.*;
@@ -42,20 +44,26 @@ public class VoxelWorld extends SimpleApplication {
         broken.setMaterial(materialLibrarian.getTexturedBlockMaterial());
         rootNode.attachChild(broken);
         */
-        world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial());
+        world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), 
+        		new File(System.getProperty("user.home")+System.getProperty("file.separator")+
+        				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip"));
         for(Coord3 c: Coord3.range(c3(-1,-1,-2), c3(3,3,3))) {
             world.getChunk(c);
         }
         /*Thread t = new Thread(new Runnable(){public void run(){
         try {
-			Thread.sleep(15000);
+			Thread.sleep(7000);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}
         Random r = new Random();
 		System.out.println();
         while(true) {
-            world.getChunk(new Coord3(r.nextInt(5) - 2, r.nextInt(5) - 2, r.nextInt(3) - 2)).meshDirty = true;
+            if(r.nextBoolean()) {
+            	world.unloadChunk(new Coord3(r.nextInt(5) - 2, r.nextInt(5) - 2, r.nextInt(3) - 2));
+            } else {
+            	world.getChunk(new Coord3(r.nextInt(5) - 2, r.nextInt(5) - 2, r.nextInt(3) - 2));
+            }
             try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {

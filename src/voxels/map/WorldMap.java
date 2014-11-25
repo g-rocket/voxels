@@ -2,6 +2,8 @@ package voxels.map;
 
 import static voxels.util.StaticUtils.*;
 
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 
 import voxels.block.*;
@@ -9,6 +11,8 @@ import voxels.generate.*;
 
 import com.jme3.material.*;
 import com.jme3.scene.*;
+
+import de.schlichtherle.truezip.nio.file.*;
 
 /*
  * Deals with the overarching structure (knows about ALL the chunks)
@@ -19,12 +23,19 @@ public class WorldMap {
 	private final Node worldNode;
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
+	private final TPath saveFile;
 	
-	public WorldMap(Node worldNode, Material blockMaterial) {
+	public WorldMap(Node worldNode, Material blockMaterial, File saveFile) {
 		chunkSize = new Coord3(32,32,16);
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
 		this.terrainGenerator = new TerrainGenerator();
+		this.saveFile = new TPath(saveFile);
+		try {
+			Files.createDirectories(this.saveFile);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -43,10 +54,55 @@ public class WorldMap {
 		if(c != null) {
 			return c;
 		} else {
-			return generateChunk(chunkPos);
+			try {
+				TPath chunkSave = saveFile.resolve(chunkPos.toString());
+				if(Files.isReadable(chunkSave)) {
+					return loadChunk(chunkPos, chunkSave);
+				} else {
+					return generateChunk(chunkPos);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				return generateChunk(chunkPos);
+			}
+			
 		}
 	}
 	
+	public void unloadChunk(Coord3 chunkPos) {
+		Chunk c = map.get(chunkPos);
+		if(c == null) {
+			System.err.println("Trying to unload a chunk that isn't loaded!");
+			return;
+		}
+		try {
+			TPath chunkSave = saveFile.resolve(chunkPos.toString());
+			if(Files.notExists(chunkSave)) {
+				try {
+					Files.createFile(chunkSave);
+				} catch(FileAlreadyExistsException e) {
+					// I don't care
+				}
+			}
+			if(Files.isWritable(chunkSave)) {
+				c.save(Files.newOutputStream(chunkSave));
+			} else {
+				System.err.println("Error saving chunk at "+chunkPos+":");
+				System.err.println("File not writeable");
+			}
+		} catch (IOException e) {
+			System.err.println("Error saving chunk at "+chunkPos+":");
+			e.printStackTrace();
+		}
+	}
+	
+	private Chunk loadChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
+		Chunk c = new Chunk(chunkPos, this, terrainGenerator, new ByteArrayInputStream(Files.readAllBytes(chunkSave)));
+		map.put(chunkPos, c);
+		worldNode.attachChild(c.getGeometry());
+		return c;
+	}
+
 	private Chunk generateChunk(Coord3 chunkPos) {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator);
 		map.put(chunkPos, c);
