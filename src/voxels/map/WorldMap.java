@@ -23,18 +23,20 @@ public class WorldMap {
 	private final Node worldNode;
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
-	private final TPath saveFile;
+	private final TPath savePath;
 	
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile) {
 		chunkSize = new Coord3(32,32,16);
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
 		this.terrainGenerator = new TerrainGenerator();
-		this.saveFile = new TPath(saveFile);
+		this.savePath = new TPath(saveFile);
 		try {
-			Files.createDirectories(this.saveFile);
+			FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
+			//if(Files.notExists(savePath.getParent())) Files.createDirectories(savePath.getParent());
+			if(Files.notExists(savePath)) Files.createDirectories(savePath);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			e.printStackTrace();
 		}
 	}
 	
@@ -55,7 +57,7 @@ public class WorldMap {
 			return c;
 		} else {
 			try {
-				TPath chunkSave = saveFile.resolve(chunkPos.toString());
+				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
 					return loadChunk(chunkPos, chunkSave);
 				} else {
@@ -69,6 +71,12 @@ public class WorldMap {
 		}
 	}
 	
+	public void unloadAllChunks() {
+		for(Coord3 chunkPos: map.keySet()) {
+			unloadChunk(chunkPos);
+		}
+	}
+	
 	public void unloadChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c == null) {
@@ -76,7 +84,7 @@ public class WorldMap {
 			return;
 		}
 		try {
-			TPath chunkSave = saveFile.resolve(chunkPos.toString());
+			TPath chunkSave = savePath.resolve(chunkPos.toString());
 			if(Files.notExists(chunkSave)) {
 				try {
 					Files.createFile(chunkSave);
