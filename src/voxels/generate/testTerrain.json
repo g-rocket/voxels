@@ -41,7 +41,7 @@
 		"lowSource": "BlockType.DIRT",
 		"highSource": "BlockType.GRASS",
 		"controlSource": {
-			"$module": "ModuleTranslateDomain",
+			"$module": "TranslateDomain",
 			"ZSource": 1,
 			"source": "mountainTerrain"
 		}
