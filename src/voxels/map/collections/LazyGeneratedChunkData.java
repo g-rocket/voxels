@@ -1,5 +1,7 @@
 package voxels.map.collections;
 
+import java.io.*;
+
 import voxels.block.*;
 import voxels.generate.*;
 import voxels.map.*;
@@ -13,6 +15,13 @@ public class LazyGeneratedChunkData implements ChunkData {
 
 	public LazyGeneratedChunkData(Coord3 size, Coord3 position, TerrainGenerator generator) {
 		data = new ByteArray3D(size);
+		this.size = size;
+		this.position = position;
+		this.generator = generator;
+	}
+
+	public LazyGeneratedChunkData(Coord3 size, Coord3 position, TerrainGenerator generator, InputStream data) throws IOException {
+		this.data = new ByteArray3D(size, data);
 		this.size = size;
 		this.position = position;
 		this.generator = generator;
@@ -52,6 +61,16 @@ public class LazyGeneratedChunkData implements ChunkData {
 	@Override
 	public boolean indexWithinBounds(int x, int y, int z) {
 		return indexWithinBounds(new Coord3(x, y, z));
+	}
+
+	@Override
+	public void save(OutputStream output) throws IOException {
+		data.save(output);
+	}
+
+	@Override
+	public void load(InputStream input) throws IOException {
+		data.load(input);
 	}
 
 }

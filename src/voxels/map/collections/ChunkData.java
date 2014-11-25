@@ -1,5 +1,7 @@
 package voxels.map.collections;
 
+import java.io.*;
+
 import voxels.block.*;
 import voxels.map.*;
 
@@ -14,6 +16,9 @@ public interface ChunkData {
     public default void set(BlockType obj, Coord3 pos) {
     	set(obj, pos.x, pos.y, pos.z);
     }
+    
+    public void save(OutputStream output) throws IOException;
+    public void load(InputStream input) throws IOException;
     
     public void set(BlockType obj, int x, int y, int z);
  

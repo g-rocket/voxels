@@ -1,16 +1,14 @@
 package voxels.map;
 
-import static voxels.block.BlockType.*;
 import static voxels.util.StaticUtils.*;
 
 import java.util.*;
 
-import com.jme3.material.*;
-import com.jme3.scene.*;
-
-import voxels.VoxelWorld.MaterialLibrarian;
 import voxels.block.*;
 import voxels.generate.*;
+
+import com.jme3.material.*;
+import com.jme3.scene.*;
 
 /*
  * Deals with the overarching structure (knows about ALL the chunks)
@@ -20,7 +18,7 @@ public class WorldMap {
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
 	private final Node worldNode;
 	public final Material blockMaterial;
-	private final TerrainGenerator terrainGenerator;
+	public final TerrainGenerator terrainGenerator;
 	
 	public WorldMap(Node worldNode, Material blockMaterial) {
 		chunkSize = new Coord3(32,32,16);

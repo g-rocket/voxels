@@ -1,31 +1,24 @@
 package voxels.map.collections;
 
+import java.io.*;
+
 import voxels.block.*;
-import voxels.map.Coord3;
+import voxels.map.*;
 
 public class ByteArray3D implements ChunkData {
     private Coord3 size;
     @SuppressWarnings("unused")
-    private int SIZE_BITS_X,SIZE_BITS_Y,SIZE_BITS_Z;
     private byte data[];
     
     public ByteArray3D(Coord3 size) {
         this.size = size;
-        getBitSizes(size);
         data = new byte[size.x*size.y*size.z];
     }
     
-    private void getBitSizes(Coord3 _size) {
-        SIZE_BITS_X = LogBase2(_size.x);
-        SIZE_BITS_Y = LogBase2(_size.y);
-        SIZE_BITS_Z = LogBase2(_size.z);
-    }
-    
-    private static int LogBase2(int n) { // assumes positive integer power of two
-    	for(int i = 30; i >= 0; i--) {
-    		if((1 << i) == n) return i;
-    	}
-    	throw new IllegalArgumentException("i is not a positive integer power of two");
+    public ByteArray3D(Coord3 size, InputStream data) throws IOException {
+        this.size = size;
+        this.data = new byte[size.x*size.y*size.z];
+        load(data);
     }
     
     /*
@@ -44,4 +37,15 @@ public class ByteArray3D implements ChunkData {
     public boolean indexWithinBounds(int x, int y, int z) {
         return x >= 0 && x < size.x && y >= 0 && y < size.y && z >= 0 && z < size.z;
     }
+
+	@Override
+	public void save(OutputStream output) throws IOException {
+		output.write(data);
+	}
+
+	@Override
+	public void load(InputStream input) throws IOException {
+		int numBytesReadIn = input.read(data);
+		if(numBytesReadIn < data.length) throw new IOException("We appear to be missing some of our chunk");
+	}
 }

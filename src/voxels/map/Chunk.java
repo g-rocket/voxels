@@ -2,6 +2,7 @@ package voxels.map;
 
 import static voxels.map.Coord3.*;
 
+import java.io.*;
 import java.util.*;
 
 import voxels.block.*;
@@ -31,6 +32,20 @@ public class Chunk extends AbstractControl {
 		data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator);
 		blocks = new UnmodifiableChunkData(data);
 		meshDirty = true;
+	}
+	
+	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator, InputStream data) throws IOException {
+		this.position = position.times(world.chunkSize);
+		this.world = world;
+		this.data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator, data);
+		blocks = new UnmodifiableChunkData(this.data);
+		meshDirty = true;
+	}
+	
+	public void save(OutputStream output) throws IOException {
+		data.save(output);
+		this.setEnabled(false);
+		this.getSpatial().removeFromParent();
 	}
 
 	@Override
