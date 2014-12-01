@@ -19,7 +19,6 @@ import de.schlichtherle.truezip.nio.file.*;
  * Deals with the overarching structure (knows about ALL the chunks)
  */
 public class WorldMap {
-	public final int timeUntilUnload;
 	public final Coord3 chunkSize;
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
 	private final Node worldNode;
@@ -55,24 +54,22 @@ public class WorldMap {
 			terrainGenerator = new TerrainGenerator(
 					props[i++] | (props[i++]<<8l) | (props[i++]<<16l) | (props[i++]<<24l) |
 					(props[i++]<<32l) | (props[i++]<<40l) | (props[i++]<<48l) | (props[i++]<<56l));
-			timeUntilUnload = props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24);
 		} else {
 			chunkSize = new Coord3(32,32,16);
 			terrainGenerator = new TerrainGenerator();
-			timeUntilUnload = 1000;
 		}
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
 		this.renderExec = renderThreadExecutor;
 		
-		new Timer(true).schedule(new TimerTask() {
+		/*new Timer(true).schedule(new TimerTask() {
 			
 			@Override
 			public void run() {
 				System.out.println("\nunloading chunks");
 				chunksShouldUnload = false;
 			}
-		}, 12000);
+		}, 12000);*/
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -89,17 +86,17 @@ public class WorldMap {
 	public Chunk getChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c != null) {
-			System.out.println("already loaded chunk at "+chunkPos);
-			c.lastTimeNeeded = System.currentTimeMillis();
+			//System.out.println("already loaded chunk at "+chunkPos);
+			c.setNeeded();
 			return c;
 		} else {
 			try {
 				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
-					System.out.println("loading chunk at "+chunkPos);
+					//System.out.println("loading chunk at "+chunkPos);
 					return readChunk(chunkPos, chunkSave);
 				} else {
-					System.out.println("generating chunk at "+chunkPos);
+					//System.out.println("generating chunk at "+chunkPos);
 					return generateChunk(chunkPos);
 				}
 			} catch (IOException e) {
@@ -142,11 +139,6 @@ public class WorldMap {
 		props[i++] = (byte)((0xff << 40l) & terrainGenerator.seed);
 		props[i++] = (byte)((0xff << 48l) & terrainGenerator.seed);
 		props[i++] = (byte)((0xff << 56l) & terrainGenerator.seed);
-
-		props[i++] = (byte)((0xff << 0) & timeUntilUnload);
-		props[i++] = (byte)((0xff << 8) & timeUntilUnload);
-		props[i++] = (byte)((0xff << 16) & timeUntilUnload);
-		props[i++] = (byte)((0xff << 24) & timeUntilUnload);
 		
 		try {
 			Files.write(savePath.resolve("world"), props, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
@@ -238,7 +230,7 @@ public class WorldMap {
 
 	public void loadChunksAroundCamera(Coord3 cameraPos) {
 		cameraPos = cameraPos.divBy(chunkSize);
-		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(5,5,3))) {
+		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(1,1,1)), new Coord3(3,3,3))) {
 			getChunk(c);
 		}
 	}

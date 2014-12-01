@@ -40,9 +40,9 @@ public class VoxelWorld extends SimpleApplication {
     @Override
     public void simpleUpdate(float secondsPerFrame) {
     	Coord3 cameraPos = new Coord3(cam.getLocation());
-    	System.out.println("The camera is at "+cam.getLocation());
-    	System.out.println("We resolved it as "+cameraPos);
-    	System.out.println("This maps to the chunk at "+cameraPos.divBy(world.chunkSize));
+    	//System.out.println("The camera is at "+cam.getLocation());
+    	//System.out.println("We resolved it as "+cameraPos);
+    	//System.out.println("This maps to the chunk at "+cameraPos.divBy(world.chunkSize));
     	world.loadChunksAroundCamera(cameraPos);
     }
 

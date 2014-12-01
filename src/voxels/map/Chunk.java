@@ -26,7 +26,7 @@ public class Chunk extends AbstractControl {
 	private final ChunkData data;
 	public final ChunkData blocks;
 	public boolean meshDirty;
-	public long lastTimeNeeded = System.currentTimeMillis();
+	private float ticksSinceNeeded = 0;
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
 		this.globalPosition = position;
@@ -53,7 +53,8 @@ public class Chunk extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
-		if(false && System.currentTimeMillis() - lastTimeNeeded > world.timeUntilUnload) {
+		ticksSinceNeeded += tpf;
+		if(ticksSinceNeeded > 4f) {
 			if(world.isLoaded(globalPosition) && world.chunksShouldUnload) {
 				System.out.println("*");
 				world.unloadChunk(globalPosition);
@@ -61,8 +62,6 @@ public class Chunk extends AbstractControl {
 		}
 		if(meshDirty) {
 			meshDirty = false;
-			buildMesh();
-			if(true) return;
 			world.exec.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -109,12 +108,11 @@ public class Chunk extends AbstractControl {
         	}
         }
         System.out.print(".");
-        MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
-        if(true) return;
         world.renderExec.execute(new Runnable() {
         	@Override
         	public void run() {
                 MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+                getGeometry().updateModelBound();
         	}
         });
 	}
@@ -129,11 +127,15 @@ public class Chunk extends AbstractControl {
         if (geom == null) {
             Mesh mesh = new Mesh(); // placeholder mesh to be filled later
             mesh.setDynamic(); // hint to openGL that the mesh may change occasionally
-            mesh.setMode(Mesh.Mode.Triangles); // GL draw mode 
+            //mesh.setMode(Mesh.Mode.Triangles); // GL draw mode 
             geom = new Geometry("chunk_"+position+"_geometry", mesh);
             geom.setMaterial(world.blockMaterial);
             geom.addControl(this);
         }
         return geom;
     }
+
+	public void setNeeded() {
+		ticksSinceNeeded = 0;
+	}
 }

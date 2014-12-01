@@ -31,7 +31,7 @@ public class TerrainGenerator {
 		return parser.getModule("test");
 	}
 
-	public BlockType getBlockAtPosistion(Coord3 pos) {
+	public synchronized BlockType getBlockAtPosistion(Coord3 pos) {
 		return BlockType.getBlock((int)terrain.get(pos.x, pos.y, pos.z));
 	}
 }
