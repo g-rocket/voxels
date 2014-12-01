@@ -10,12 +10,14 @@ import com.sudoplay.joise.module.*;
 
 public class TerrainGenerator {
 	private final Module terrain;
+	public final long seed;
 	
 	public TerrainGenerator() {
 		this(new Random().nextLong());
 	}
 	
 	public TerrainGenerator(long seed) {
+		this.seed = seed;
 		terrain = setupNoiseGenerator(seed);
 	}
 	

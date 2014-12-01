@@ -5,6 +5,7 @@ import static voxels.util.StaticUtils.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import voxels.block.*;
 import voxels.generate.*;
@@ -18,18 +19,18 @@ import de.schlichtherle.truezip.nio.file.*;
  * Deals with the overarching structure (knows about ALL the chunks)
  */
 public class WorldMap {
+	public final int timeUntilUnload;
 	public final Coord3 chunkSize;
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
 	private final Node worldNode;
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
 	private final TPath savePath;
+	public final Executor exec = Executors.newWorkStealingPool();
+	private final Executor renderExec;
+	public volatile boolean chunksShouldUnload = false;
 	
-	public WorldMap(Node worldNode, Material blockMaterial, File saveFile) {
-		chunkSize = new Coord3(32,32,16);
-		this.worldNode = worldNode;
-		this.blockMaterial = blockMaterial;
-		this.terrainGenerator = new TerrainGenerator();
+	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
 		this.savePath = new TPath(saveFile);
 		try {
 			FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
@@ -38,6 +39,40 @@ public class WorldMap {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		if(Files.isReadable(savePath.resolve("world"))) {
+			System.out.println();
+			byte[] props = null;
+			try {
+				props = Files.readAllBytes(savePath.resolve("world"));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+			int i = 0;
+			chunkSize = new Coord3(
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24));
+			terrainGenerator = new TerrainGenerator(
+					props[i++] | (props[i++]<<8l) | (props[i++]<<16l) | (props[i++]<<24l) |
+					(props[i++]<<32l) | (props[i++]<<40l) | (props[i++]<<48l) | (props[i++]<<56l));
+			timeUntilUnload = props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24);
+		} else {
+			chunkSize = new Coord3(32,32,16);
+			terrainGenerator = new TerrainGenerator();
+			timeUntilUnload = 1000;
+		}
+		this.worldNode = worldNode;
+		this.blockMaterial = blockMaterial;
+		this.renderExec = renderThreadExecutor;
+		
+		new Timer(true).schedule(new TimerTask() {
+			
+			@Override
+			public void run() {
+				System.out.println("\nunloading chunks");
+				chunksShouldUnload = false;
+			}
+		}, 12000);
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -46,20 +81,21 @@ public class WorldMap {
 	
 	private Coord3 chunkPos(Coord3 blockPos) {
 		return new Coord3(
-				ifdiv(blockPos.x, chunkSize.x), 
-				ifdiv(blockPos.x, chunkSize.x), 
-				ifdiv(blockPos.x, chunkSize.x));
+				floorDiv(blockPos.x, chunkSize.x), 
+				floorDiv(blockPos.x, chunkSize.x), 
+				floorDiv(blockPos.x, chunkSize.x));
 	}
 	
 	public Chunk getChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c != null) {
+			c.lastTimeNeeded = System.currentTimeMillis();
 			return c;
 		} else {
 			try {
 				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
-					return loadChunk(chunkPos, chunkSave);
+					return readChunk(chunkPos, chunkSave);
 				} else {
 					return generateChunk(chunkPos);
 				}
@@ -71,50 +107,128 @@ public class WorldMap {
 		}
 	}
 	
-	public void unloadAllChunks() {
-		for(Coord3 chunkPos: map.keySet()) {
-			unloadChunk(chunkPos);
+	public void unloadWorld() {
+		chunksShouldUnload = false;
+		for(Iterator<Map.Entry<Coord3, Chunk>> chunkI = map.entrySet().iterator(); chunkI.hasNext();) {
+			unloadChunk(chunkI.next().getValue());
+			chunkI.remove();
 		}
+		byte[] props = new byte[24];
+		int i = 0;
+		props[i++] = (byte)((0xff << 0) & chunkSize.x);
+		props[i++] = (byte)((0xff << 8) & chunkSize.x);
+		props[i++] = (byte)((0xff << 16) & chunkSize.x);
+		props[i++] = (byte)((0xff << 24) & chunkSize.x);
+		
+		props[i++] = (byte)((0xff << 0) & chunkSize.y);
+		props[i++] = (byte)((0xff << 8) & chunkSize.y);
+		props[i++] = (byte)((0xff << 16) & chunkSize.y);
+		props[i++] = (byte)((0xff << 24) & chunkSize.y);
+		
+		props[i++] = (byte)((0xff << 0) & chunkSize.z);
+		props[i++] = (byte)((0xff << 8) & chunkSize.z);
+		props[i++] = (byte)((0xff << 16) & chunkSize.z);
+		props[i++] = (byte)((0xff << 24) & chunkSize.z);
+
+		props[i++] = (byte)((0xff << 0l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 8l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 16l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 24l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 32l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 40l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 48l) & terrainGenerator.seed);
+		props[i++] = (byte)((0xff << 56l) & terrainGenerator.seed);
+
+		props[i++] = (byte)((0xff << 0) & timeUntilUnload);
+		props[i++] = (byte)((0xff << 8) & timeUntilUnload);
+		props[i++] = (byte)((0xff << 16) & timeUntilUnload);
+		props[i++] = (byte)((0xff << 24) & timeUntilUnload);
+		
+		try {
+			Files.write(savePath.resolve("world"), props, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		
+		worldNode.removeFromParent();
+	}
+	
+	public void loadChunk(Coord3 chunkPos) {
+		exec.execute(new Runnable() {
+			@Override
+			public void run() {
+				getChunk(chunkPos);
+			}
+		});
+	}
+	
+	public boolean isLoaded(Coord3 chunkPos) {
+		return map.containsKey(chunkPos);
 	}
 	
 	public void unloadChunk(Coord3 chunkPos) {
-		Chunk c = map.get(chunkPos);
-		if(c == null) {
-			System.err.println("Trying to unload a chunk that isn't loaded!");
-			return;
-		}
-		try {
-			TPath chunkSave = savePath.resolve(chunkPos.toString());
-			if(Files.notExists(chunkSave)) {
-				try {
-					Files.createFile(chunkSave);
-				} catch(FileAlreadyExistsException e) {
-					// I don't care
-				}
-			}
-			if(Files.isWritable(chunkSave)) {
-				c.save(Files.newOutputStream(chunkSave));
-			} else {
-				System.err.println("Error saving chunk at "+chunkPos+":");
-				System.err.println("File not writeable");
-			}
-		} catch (IOException e) {
-			System.err.println("Error saving chunk at "+chunkPos+":");
-			e.printStackTrace();
-		}
+		unloadChunk(map.remove(chunkPos));
 	}
 	
-	private Chunk loadChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
+	private void unloadChunk(Chunk c) {
+		exec.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(c == null) {
+					System.err.println("Trying to unload a chunk that isn't loaded!");
+					return;
+				}
+				try {
+					TPath chunkSave = savePath.resolve(c.globalPosition.toString());
+					if(Files.notExists(chunkSave)) {
+						try {
+							Files.createFile(chunkSave);
+						} catch(FileAlreadyExistsException e) {
+							e.printStackTrace();
+						}
+					}
+					if(Files.isWritable(chunkSave)) {
+						c.save(Files.newOutputStream(chunkSave));
+					} else {
+						System.err.println("Error saving chunk at "+c.globalPosition+":");
+						System.err.println("File not writeable");
+					}
+				} catch (IOException e) {
+					System.err.println("Error saving chunk at "+c.globalPosition+":");
+					e.printStackTrace();
+				}
+				renderExec.execute(new Runnable(){
+					@Override
+					public void run() {
+						c.setEnabled(false);
+						c.getSpatial().removeFromParent();
+					}
+				});
+			}
+		});
+	}
+	
+	private Chunk readChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator, new ByteArrayInputStream(Files.readAllBytes(chunkSave)));
-		map.put(chunkPos, c);
-		worldNode.attachChild(c.getGeometry());
+		renderExec.execute(new Runnable() {
+			@Override
+			public void run() {
+				map.put(chunkPos, c);
+				worldNode.attachChild(c.getGeometry());
+			}
+		});
 		return c;
 	}
 
 	private Chunk generateChunk(Coord3 chunkPos) {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator);
-		map.put(chunkPos, c);
-		worldNode.attachChild(c.getGeometry());
+		renderExec.execute(new Runnable() {
+			@Override
+			public void run() {
+				map.put(chunkPos, c);
+				worldNode.attachChild(c.getGeometry());
+			}
+		});
 		return c;
 	}
 }
