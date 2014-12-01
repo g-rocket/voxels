@@ -1,7 +1,5 @@
 package voxels;
 
-import static voxels.map.Coord3.*;
-
 import java.awt.*;
 import java.io.*;
 import java.util.*;
@@ -22,9 +20,7 @@ import com.jme3.scene.shape.*;
 import com.jme3.system.*;
 import com.jme3.texture.*;
 
-/**
- * Created by didyouloseyourdog on 8/10/14.
- */
+
 public class VoxelWorld extends SimpleApplication {
 	private MaterialLibrarian materialLibrarian;
 	private WorldMap world;
@@ -55,12 +51,6 @@ public class VoxelWorld extends SimpleApplication {
     	viewPort.setBackgroundColor(ColorRGBA.Blue);
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
-        /*
-        Geometry broken = new Geometry("broken");
-        broken.setMesh(new Mesh());
-        broken.setMaterial(materialLibrarian.getTexturedBlockMaterial());
-        rootNode.attachChild(broken);
-        */
 		String worldFile = System.getProperty("user.home")+System.getProperty("file.separator")+
 				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip";
 		world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
@@ -143,10 +133,7 @@ public class VoxelWorld extends SimpleApplication {
 	private void setUpTheCam() {
 		flyCam.setMoveSpeed(30);
 	}
-
-	/*******************************
-	 * Program starts here... ******
-	 *******************************/
+	
 	public static void main(String[] args) {
 		VoxelWorld app = new VoxelWorld();
 		ScreenSettings(app, false); // setup setting to prevent jme3 settings screen from showing
