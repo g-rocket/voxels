@@ -53,15 +53,22 @@ public class Chunk extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
-		if(System.currentTimeMillis() - lastTimeNeeded > world.timeUntilUnload) {
+		if(false && System.currentTimeMillis() - lastTimeNeeded > world.timeUntilUnload) {
 			if(world.isLoaded(globalPosition) && world.chunksShouldUnload) {
 				System.out.println("*");
 				world.unloadChunk(globalPosition);
 			}
 		}
 		if(meshDirty) {
-			buildMesh();
 			meshDirty = false;
+			buildMesh();
+			if(true) return;
+			world.exec.execute(new Runnable() {
+				@Override
+				public void run() {
+					buildMesh();
+				}
+			});
 		}
 	}
 
@@ -101,8 +108,15 @@ public class Chunk extends AbstractControl {
         		}
         	}
         }
-        MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
         System.out.print(".");
+        MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        if(true) return;
+        world.renderExec.execute(new Runnable() {
+        	@Override
+        	public void run() {
+                MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        	}
+        });
 	}
 
 	@Override

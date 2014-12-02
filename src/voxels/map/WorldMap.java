@@ -27,7 +27,7 @@ public class WorldMap {
 	public final TerrainGenerator terrainGenerator;
 	private final TPath savePath;
 	public final Executor exec = Executors.newWorkStealingPool();
-	private final Executor renderExec;
+	public final Executor renderExec;
 	public volatile boolean chunksShouldUnload = false;
 	
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
