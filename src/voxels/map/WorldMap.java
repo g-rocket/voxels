@@ -27,7 +27,7 @@ public class WorldMap {
 	private final TPath savePath;
 	public final Executor exec = Executors.newWorkStealingPool();
 	public final Executor renderExec;
-	public volatile boolean chunksShouldUnload = false;
+	public volatile boolean chunksShouldUnload = true;
 	
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
 		this.savePath = new TPath(saveFile);
@@ -230,7 +230,7 @@ public class WorldMap {
 
 	public void loadChunksAroundCamera(Coord3 cameraPos) {
 		cameraPos = cameraPos.divBy(chunkSize);
-		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(1,1,1)), new Coord3(3,3,3))) {
+		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(4,4,3))) {
 			getChunk(c);
 		}
 	}

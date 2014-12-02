@@ -3,6 +3,7 @@ package voxels;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.*;
 
 import voxels.block.*;
@@ -24,19 +25,106 @@ import com.jme3.texture.*;
 public class VoxelWorld extends SimpleApplication {
 	private MaterialLibrarian materialLibrarian;
 	private WorldMap world;
-	private Executor renderThreadExecutor = new Executor() {
+	private ExecutorService renderThreadExecutor = new ExecutorService() {
+		class CallableRunnable<T> implements Callable<T>{
+			private final T result;
+			private final Runnable task;
+			
+			public CallableRunnable(Runnable task, T result) {
+				this.task = task;
+				this.result = result;
+			}
+			
+			@Override
+			public T call() throws Exception {
+				task.run();
+				return result;
+			}
+			
+		}
+		
 		@Override
-		public void execute(Runnable command) {
-			VoxelWorld.this.enqueue(new Callable<Object>() {
-				@Override
-				public Object call() throws Exception {
-					command.run();
-					return null;
-				}
-			});
+		public void execute(Runnable task) {
+			VoxelWorld.this.enqueue(new CallableRunnable<Object>(task, null));
+		}
+		
+		@Override
+		public <T> Future<T> submit(Runnable task, T result) {
+			return VoxelWorld.this.enqueue(new CallableRunnable<T>(task, result));
+		}
+		
+		@Override
+		public Future<?> submit(Runnable task) {
+			return VoxelWorld.this.enqueue(new CallableRunnable<Object>(task, null));
+		}
+		
+		@Override
+		public <T> Future<T> submit(Callable<T> task) {
+			return VoxelWorld.this.enqueue(task);
+		}
+		
+		@Override
+		public List<Runnable> shutdownNow() {
+			throw new UnsupportedOperationException("this synthetic executor doesn't know how to shut down");
+		}
+		
+		@Override
+		public void shutdown() {
+			throw new UnsupportedOperationException("this synthetic executor doesn't know how to shut down");
+		}
+		
+		@Override
+		public boolean isTerminated() {
+			return false;
+		}
+		
+		@Override
+		public boolean isShutdown() {
+			return false;
+		}
+		
+		@Override
+		public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
+				long timeout, TimeUnit unit) throws InterruptedException,
+				ExecutionException, TimeoutException {
+			throw new UnsupportedOperationException("this synthetic executor doesn't support timeouts");
+		}
+		
+		/**
+		 * just runs the first task
+		 */
+		@Override
+		public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+				throws InterruptedException, ExecutionException {
+			if(tasks.isEmpty()) return null;
+			return submit(tasks.iterator().next()).get();
+		}
+		
+		@Override
+		public <T> List<Future<T>> invokeAll(
+				Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+				throws InterruptedException {
+			throw new UnsupportedOperationException("this synthetic executor doesn't support timeouts");
+		}
+		
+		@Override
+		public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+				throws InterruptedException {
+			List<Future<T>> futures = new ArrayList<>(tasks.size());
+			for(Callable<T> task: tasks) {
+				futures.add(VoxelWorld.this.enqueue(task));
+			}
+			return futures;
+		}
+		
+		@Override
+		public boolean awaitTermination(long timeout, TimeUnit unit)
+				throws InterruptedException {
+			throw new UnsupportedOperationException("this synthetic executor doesn't know how to shut down");
 		}
 	};
-
+	
+	
     @Override
     public void simpleUpdate(float secondsPerFrame) {
     	Coord3 cameraPos = new Coord3(cam.getLocation());

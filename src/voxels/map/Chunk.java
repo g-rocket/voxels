@@ -27,6 +27,7 @@ public class Chunk extends AbstractControl {
 	public final ChunkData blocks;
 	public boolean meshDirty;
 	private float ticksSinceNeeded = 0;
+	private boolean isUnloading = false;
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
 		this.globalPosition = position;
@@ -55,9 +56,15 @@ public class Chunk extends AbstractControl {
 	protected void controlUpdate(float tpf) {
 		ticksSinceNeeded += tpf;
 		if(ticksSinceNeeded > 4f) {
-			if(world.isLoaded(globalPosition) && world.chunksShouldUnload) {
-				System.out.println("*");
-				world.unloadChunk(globalPosition);
+			if(world.isLoaded(globalPosition) && world.chunksShouldUnload && !isUnloading) {
+				isUnloading = true;
+				System.out.print("*");
+				world.exec.execute(new Runnable() {
+					@Override
+					public void run() {
+						world.unloadChunk(globalPosition);
+					}
+				});
 			}
 		}
 		if(meshDirty) {
