@@ -13,6 +13,12 @@ public class Coord3 {
 		this.z = z;
 	}
 	
+	public Coord3(Vector3f vec) {
+		this.x = (int)vec.x;
+		this.y = (int)vec.y;
+		this.z = (int)vec.z;
+	}
+	
 	public Vector3f asVector() {
 		return new Vector3f(x,z,y);
 	}
