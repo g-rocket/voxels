@@ -54,16 +54,20 @@ public class WorldMap {
 	public Chunk getChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c != null) {
+			System.out.println("already loaded chunk at "+chunkPos);
 			return c;
 		} else {
 			try {
 				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
+					System.out.println("loading chunk at "+chunkPos);
 					return loadChunk(chunkPos, chunkSave);
 				} else {
+					System.out.println("generating chunk at "+chunkPos);
 					return generateChunk(chunkPos);
 				}
 			} catch (IOException e) {
+				System.err.println("error loading chunk at "+chunkPos);
 				e.printStackTrace();
 				return generateChunk(chunkPos);
 			}
@@ -116,5 +120,12 @@ public class WorldMap {
 		map.put(chunkPos, c);
 		worldNode.attachChild(c.getGeometry());
 		return c;
+	}
+
+	public void loadChunksAroundCamera(Coord3 cameraPos) {
+		cameraPos = cameraPos.divBy(chunkSize);
+		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(5,5,3))) {
+			getChunk(c);
+		}
 	}
 }

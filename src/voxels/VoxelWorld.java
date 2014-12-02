@@ -30,7 +30,11 @@ public class VoxelWorld extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float secondsPerFrame) {
-    	
+    	Coord3 cameraPos = new Coord3(cam.getLocation());
+    	System.out.println("The camera is at "+cam.getLocation());
+    	System.out.println("We resolved it as "+cameraPos);
+    	System.out.println("This maps to the chunk at "+cameraPos.divBy(world.chunkSize));
+    	world.loadChunksAroundCamera(cameraPos);
     }
 
     @Override
@@ -47,9 +51,7 @@ public class VoxelWorld extends SimpleApplication {
         world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), 
         		new File(System.getProperty("user.home")+System.getProperty("file.separator")+
         				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip"));
-        for(Coord3 c: Coord3.range(c3(-1,-1,-2), c3(3,3,3))) {
-            world.getChunk(c);
-        }
+        cam.setLocation(new Coord3(0,0,0).asVector());
         /*Thread t = new Thread(new Runnable(){public void run(){
         try {
 			Thread.sleep(7000);

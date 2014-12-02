@@ -15,8 +15,8 @@ public class Coord3 {
 	
 	public Coord3(Vector3f vec) {
 		this.x = (int)vec.x;
-		this.y = (int)vec.y;
-		this.z = (int)vec.z;
+		this.y = (int)vec.z;
+		this.z = (int)vec.y;
 	}
 	
 	public Vector3f asVector() {
