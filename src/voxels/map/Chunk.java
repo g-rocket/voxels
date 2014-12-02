@@ -20,13 +20,16 @@ import com.jme3.scene.control.*;
  * Deals with a single chunk of information
  */
 public class Chunk extends AbstractControl {
+	public final Coord3 globalPosition;
 	public final Coord3 position;
 	private final WorldMap world;
 	private final ChunkData data;
 	public final ChunkData blocks;
 	public boolean meshDirty;
+	public long lastTimeNeeded = System.currentTimeMillis();
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
+		this.globalPosition = position;
 		this.position = position.times(world.chunkSize);
 		this.world = world;
 		data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator);
@@ -35,6 +38,7 @@ public class Chunk extends AbstractControl {
 	}
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator, InputStream data) throws IOException {
+		this.globalPosition = position;
 		this.position = position.times(world.chunkSize);
 		this.world = world;
 		this.data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator, data);
@@ -45,12 +49,16 @@ public class Chunk extends AbstractControl {
 	public void save(OutputStream output) throws IOException {
 		data.save(output);
 		output.close();
-		this.setEnabled(false);
-		this.getSpatial().removeFromParent();
 	}
 
 	@Override
 	protected void controlUpdate(float tpf) {
+		if(System.currentTimeMillis() - lastTimeNeeded > world.timeUntilUnload) {
+			if(world.isLoaded(globalPosition) && world.chunksShouldUnload) {
+				System.out.println("*");
+				world.unloadChunk(globalPosition);
+			}
+		}
 		if(meshDirty) {
 			buildMesh();
 			meshDirty = false;

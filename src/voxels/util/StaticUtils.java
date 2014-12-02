@@ -15,7 +15,7 @@ public class StaticUtils {
 		return i & ((1<<logm) - 1);
 	}
 	
-	public static int ifdiv(int n, int d) {
+	public static int floorDiv(int n, int d) {
 	    if (n >= 0) return n / d;
 	    else return ~(~n / d);
 	}
