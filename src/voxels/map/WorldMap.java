@@ -229,7 +229,10 @@ public class WorldMap {
 	}
 
 	public void loadChunksAroundCamera(Coord3 cameraPos) {
-		cameraPos = cameraPos.divBy(chunkSize);
+		cameraPos = new Coord3(
+				floorDiv(cameraPos.x, chunkSize.x),
+				floorDiv(cameraPos.y, chunkSize.y),
+				floorDiv(cameraPos.z, chunkSize.z));
 		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(4,4,3))) {
 			getChunk(c);
 		}
