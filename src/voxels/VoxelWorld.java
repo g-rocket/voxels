@@ -8,11 +8,14 @@ import java.util.concurrent.*;
 
 import voxels.block.*;
 import voxels.block.texture.*;
+import voxels.entity.*;
 import voxels.map.*;
 import voxels.meshconstruction.*;
 
 import com.jme3.app.*;
 import com.jme3.asset.*;
+import com.jme3.input.*;
+import com.jme3.input.controls.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
 import com.jme3.scene.*;
@@ -24,7 +27,7 @@ import com.jme3.texture.*;
 
 public class VoxelWorld extends SimpleApplication {
 	private MaterialLibrarian materialLibrarian;
-	private WorldMap world;
+	private World world;
 	private ExecutorService renderThreadExecutor = new ExecutorService() {
 		class CallableRunnable<T> implements Callable<T>{
 			private final T result;
@@ -126,11 +129,7 @@ public class VoxelWorld extends SimpleApplication {
 	
     @Override
     public void simpleUpdate(float secondsPerFrame) {
-    	Coord3 cameraPos = new Coord3(cam.getLocation());
-    	//System.out.println("The camera is at "+cam.getLocation());
-    	//System.out.println("We resolved it as "+cameraPos);
-    	//System.out.println("This maps to the chunk at "+cameraPos.divBy(world.chunkSize));
-    	world.loadChunksAroundCamera(cameraPos);
+    	world.simpleUpdate(secondsPerFrame);
     }
 
     @Override
@@ -140,9 +139,25 @@ public class VoxelWorld extends SimpleApplication {
         setUpTheCam();
 		String worldFile = System.getProperty("user.home")+System.getProperty("file.separator")+
 				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip";
-		world = new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-        cam.setLocation(new Coord3(0,0,0).asVector());
+		world = new World(
+					new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor),
+					getStateManager());
+		world.addPlayer(new MainPlayer(cam));
+        //cam.setLocation(new Coord3(0,0,0).asVector());
 	}
+    
+    private void setUpKeys(InputListener player) {
+      inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
+      inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
+      inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
+      inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+      inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
+      inputManager.addListener(player, "Left");
+      inputManager.addListener(player, "Right");
+      inputManager.addListener(player, "Up");
+      inputManager.addListener(player, "Down");
+      inputManager.addListener(player, "Jump");
+    }
     
 	private static void ScreenSettings(VoxelWorld app, boolean fullScreen) {
 		GraphicsDevice[] screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
