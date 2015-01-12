@@ -13,27 +13,83 @@
 	<classpathentry kind="lib" path="lib/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/j-ogg-oggd.jar"/>
 	<classpathentry kind="lib" path="lib/j-ogg-vorbisd.jar"/>
-	<classpathentry kind="lib" path="lib/jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jbullet.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/jglfont-core.jar"/>
 	<classpathentry kind="lib" path="lib/jinput.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-blender.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-blender.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/jME3-core.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jME3-desktop.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-effects.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-jbullet.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-jogg.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-lwjgl-natives.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-lwjgl.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-networking.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-niftygui.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-openal-soft-natives-android.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-plugins.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-terrain.jar"/>
-	<classpathentry kind="lib" path="lib/jME3-testdata.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-desktop.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-effects.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-jbullet.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-jogg.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-lwjgl-natives.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-lwjgl.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-networking.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-niftygui.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-openal-soft-natives-android.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-plugins.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-terrain.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jME3-testdata.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hub.jmonkeyengine.org/javadoc/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="lib/joal.jar"/>
 	<classpathentry kind="lib" path="lib/jogl-all.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl.jar"/>
