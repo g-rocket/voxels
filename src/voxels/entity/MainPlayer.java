@@ -1,17 +1,10 @@
 package voxels.entity;
 
-import java.io.*;
-
-import voxels.map.*;
-
 import com.jme3.bullet.*;
 import com.jme3.bullet.control.*;
-import com.jme3.export.*;
 import com.jme3.input.controls.*;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
-import com.jme3.scene.*;
-import com.jme3.scene.control.*;
 
 public class MainPlayer extends BetterCharacterControl implements Player, ActionListener {
 	private final Camera camera;
@@ -47,6 +40,7 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 		case "Right": walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
 		case "Up": walkDirection.addLocal(camera.getDirection().mult(frontSpeed));
 		case "Down": walkDirection.addLocal(camera.getDirection().mult(-backSpeed));
+		case "Jump": super.jump();
 		}
 		setWalkDirection(walkDirection);
 	}

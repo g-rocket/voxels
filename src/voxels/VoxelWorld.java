@@ -6,11 +6,8 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 
-import voxels.block.*;
-import voxels.block.texture.*;
 import voxels.entity.*;
 import voxels.map.*;
-import voxels.meshconstruction.*;
 
 import com.jme3.app.*;
 import com.jme3.asset.*;
@@ -18,9 +15,6 @@ import com.jme3.input.*;
 import com.jme3.input.controls.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
-import com.jme3.scene.*;
-import com.jme3.scene.debug.*;
-import com.jme3.scene.shape.*;
 import com.jme3.system.*;
 import com.jme3.texture.*;
 
@@ -142,7 +136,8 @@ public class VoxelWorld extends SimpleApplication {
 		world = new World(
 					new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor),
 					getStateManager());
-		world.addPlayer(new MainPlayer(cam));
+		//world.addPlayer(new MainPlayer(cam));
+		world.addPlayer(new FakePlayer(cam));
         //cam.setLocation(new Coord3(0,0,0).asVector());
 	}
     

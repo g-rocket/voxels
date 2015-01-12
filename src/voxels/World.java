@@ -2,11 +2,12 @@ package voxels;
 
 import java.util.*;
 
+import voxels.entity.*;
+import voxels.map.*;
+
 import com.jme3.app.state.*;
 import com.jme3.bullet.*;
-
-import voxels.map.*;
-import voxels.entity.*;
+import com.jme3.bullet.control.*;
 
 public class World {
 	private final WorldMap map;
@@ -27,5 +28,11 @@ public class World {
 
 	public void addPlayer(Player player) {
 		players.add(player);
+		if(player instanceof PhysicsControl) {
+			physics.getPhysicsSpace().add(player);
+		}
+		if(player instanceof PhysicsTickListener) {
+			physics.getPhysicsSpace().addTickListener((PhysicsTickListener)player);
+		}
 	}
 }
