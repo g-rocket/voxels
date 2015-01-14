@@ -79,12 +79,26 @@
 		"controlSource": "mountainTerrain",
 		"lowSource": "mountainTerrain",
 		"highSource": "skyTerrain",
-		"threshold": 20
+		"threshold": 30
 	},
 	
 	"skyTerrain": {
-		"%module": "Cellular",
-		"coefficients": [1, 0, 0, 0]
+		"%module": "ScaleDomain",
+		"scaleZ": 0.03,
+		"scaleX": 0.01,
+		"scaleY": 0.01,
+		"source": {
+			"%module": "ScaleOffset",
+			"scale": 40,
+			"offset": 10,
+			"source": {
+				"%module": "Cellular",
+				"cellularSource": {
+					"%module": "CellGen"
+				},
+				"coefficients": [-1, 1, 0, 0]
+			}
+		}
 	},
 	
 	"mountainTerrain": {
