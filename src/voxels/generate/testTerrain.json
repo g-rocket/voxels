@@ -96,7 +96,7 @@
 				"cellularSource": {
 					"%module": "CellGen"
 				},
-				"coefficients": [-1, 1, 0, 0]
+				"coefficients": [1, 1, 0, 0]
 			}
 		}
 	},
