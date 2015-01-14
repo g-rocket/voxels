@@ -28,7 +28,8 @@ public class TerrainGenerator {
 						new InputStreamReader(this.getClass().getResourceAsStream("testTerrain.json"))
 				), seed);
 		//parser.parse();
-		return parser.getModule("test");
+		//return parser.getModule("test");
+		return parser.getModule("main");
 	}
 
 	public synchronized BlockType getBlockAtPosistion(Coord3 pos) {
