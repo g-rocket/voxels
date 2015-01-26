@@ -64,3 +64,5 @@ doc/**
 out
 *.eml
 *.iml
+/*.dylib
+

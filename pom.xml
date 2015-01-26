@@ -4,14 +4,57 @@
   <artifactId>voxels</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Voxel World!</name>
+  <scm>
+    <connection>https://github.com/g-rocket/voxels.git</connection>
+    <developerConnection>https://github.com/g-rocket/voxels.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/g-rocket/voxels</url>
+  </scm>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <repositories>
+  	<repository>
+        <id>jmonkey</id>
+        <url>http://updates.jmonkeyengine.org/maven/</url>
+        <releases>
+           <enabled>true</enabled>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>        
+     </repository>
+     <repository>
+        <id>project-contained-repo</id>
+        <url>file://${basedir}/lib</url>
+        <releases>
+           <enabled>true</enabled>
+        </releases>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>        
+     </repository>
+  </repositories>
+  
   <build>
     <sourceDirectory>src</sourceDirectory>
+    <finalName>voxels</finalName>
+    <defaultGoal>clean compile assembly:single</defaultGoal>
     <resources>
       <resource>
         <directory>src</directory>
         <excludes>
           <exclude>**/*.java</exclude>
         </excludes>
+      </resource>
+      <resource>
+        <directory>resources</directory>
+        <includes>
+          <include>**/*.dylib</include>
+          <include>**/*.jnilib</include>
+        </includes>
       </resource>
       <resource>
         <directory>src/assets_for_voxel/MatDefs</directory>
@@ -33,11 +76,62 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
         </configuration>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <minimizeJar>true</minimizeJar>
+              <artifactSet>
+                <excludes>
+                  <exclude>junit:junit</exclude>
+                </excludes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>voxels.VoxelWorld</mainClass>
+            </manifest>
+          </archive>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- bind to the packaging phase -->
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
   <dependencies>
+  	<dependency>
+  		<groupId>com.sudoplay</groupId>
+  		<artifactId>joise</artifactId>
+  		<version>1.0.0</version>
+  	</dependency>
   	<dependency>
   		<groupId>com.google.guava</groupId>
   		<artifactId>guava</artifactId>
@@ -57,6 +151,26 @@
   	  <groupId>de.schlichtherle.truezip</groupId>
   	  <artifactId>truezip-driver-zip</artifactId>
   	  <version>7.7.7</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jme3</groupId>
+  		<artifactId>jme3-core</artifactId>
+  		<version>3.0.10</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jme3</groupId>
+  		<artifactId>jme3-desktop</artifactId>
+  		<version>3.0.10</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jme3</groupId>
+  		<artifactId>jme3-lwjgl</artifactId>
+  		<version>3.0.10</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.jme3</groupId>
+  		<artifactId>jme3-jbullet</artifactId>
+  		<version>3.0.10</version>
   	</dependency>
   </dependencies>
 </project>
