@@ -85,19 +85,19 @@
 	"skyTerrain": {
 		"%module": "ScaleDomain",
 		"scaleZ": 0.03,
-		"scaleX": 0.01,
-		"scaleY": 0.01,
+		"scaleX": 0.03,
+		"scaleY": 0.02,
 		"source": {
 			"%module": "ScaleOffset",
-			"scale": 40,
-			"offset": 10,
-			"source": {
-				"%module": "Cellular",
-				"cellularSource": {
-					"%module": "CellGen"
-				},
-				"coefficients": [1, 1, 0, 0]
-			}
+			"scale": 20,
+			"offset": 20,
+				"source": {
+					"%module": "Fractal",
+					"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+					"numOctaves": 8,
+					"frequency": 0.2,
+					"seed": "$seed"
+				}
 		}
 	},
 	
