@@ -84,9 +84,9 @@
 	
 	"skyTerrain": {
 		"%module": "ScaleDomain",
-		"scaleZ": 0.03,
-		"scaleX": 0.03,
-		"scaleY": 0.02,
+		"scaleZ": 0.08,
+		"scaleX": 0.08,
+		"scaleY": 0.1,
 		"source": {
 			"%module": "ScaleOffset",
 			"scale": 20,
@@ -102,26 +102,29 @@
 	},
 	
 	"mountainTerrain": {
-		"%module": "TranslateDomain",
+		"%module": "Cache",
 		"source": {
-			"%module": "Gradient",
-			"gradient": [0, 0, 0, 0, 0, 1]
-		},
-		"axisZSource": {
-			"%module": "ScaleDomain",
-			"scaleZ": 0.1,
-			"scaleX": 0.2,
-			"scaleY": 0.2,
+			"%module": "TranslateDomain",
 			"source": {
-				"%module": "ScaleOffset",
-				"scale": 20,
-				"offset": 10,
+				"%module": "Gradient",
+				"gradient": [0, 0, 0, 0, 0, 1]
+			},
+			"axisZSource": {
+				"%module": "ScaleDomain",
+				"scaleZ": 0.1,
+				"scaleX": 0.2,
+				"scaleY": 0.2,
 				"source": {
-					"%module": "Fractal",
-					"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
-					"numOctaves": 8,
-					"frequency": 0.2,
-					"seed": "$seed"
+					"%module": "ScaleOffset",
+					"scale": 20,
+					"offset": 10,
+					"source": {
+						"%module": "Fractal",
+						"%args": ["FractalType.FBM", "BasisType.GRADIENT", "InterpolationType.QUINTIC"],
+						"numOctaves": 8,
+						"frequency": 0.2,
+						"seed": "$seed"
+					}
 				}
 			}
 		}
