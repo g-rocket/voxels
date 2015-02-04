@@ -119,7 +119,6 @@ public class Coord3 {
 		public String toString() {
 			return "{["+start+":"+start.plus(size)+"], "+size+"}";
 		}
-		
 	}
 	
 	@Override

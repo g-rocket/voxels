@@ -34,6 +34,7 @@ public class Chunk extends AbstractControl {
 		this.position = position.times(world.chunkSize);
 		this.world = world;
 		data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator);
+		buildMesh(false); // pre-generate the terrain
 		blocks = new UnmodifiableChunkData(data);
 		meshDirty = true;
 	}
@@ -55,8 +56,8 @@ public class Chunk extends AbstractControl {
 	@Override
 	protected void controlUpdate(float tpf) {
 		ticksSinceNeeded += tpf;
-		if(ticksSinceNeeded > 4f) {
-			if(world.isLoaded(globalPosition) && world.chunksShouldUnload && !isUnloading) {
+		if(ticksSinceNeeded > 16f) {
+			if(world.isLoaded(globalPosition) && world.shouldUnload(globalPosition) && world.chunksShouldUnload && !isUnloading) {
 				isUnloading = true;
 				System.out.print("*");
 				world.exec.execute(new Runnable() {
@@ -72,7 +73,7 @@ public class Chunk extends AbstractControl {
 			world.exec.execute(new Runnable() {
 				@Override
 				public void run() {
-					buildMesh();
+					buildMesh(true);
 				}
 			});
 		}
@@ -82,11 +83,9 @@ public class Chunk extends AbstractControl {
 		return Coord3.range(position, world.chunkSize);
 	}
 	
-	private void buildMesh() {
-		int mSize = 0;
+	private void buildMesh(boolean doMesh) {
         MeshSet mset = new MeshSet();
         Coord3 csm1 = world.chunkSize.minus(c3(1,1,1));
-		@SuppressWarnings("unchecked")
 		List<Coord3> toMesh = new ListStartedList<>(
 				Coord3.range(position, world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1))),
 				Coord3.range(position, world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0))),
@@ -105,7 +104,7 @@ public class Chunk extends AbstractControl {
         		BlockType block2 = data.get(blockPos2);
         		if(block.isOpaque) {
         			if(!data.indexWithinBounds(blockPos2) || !block2.isOpaque) {
-        				BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
+        				if(doMesh) BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
         			}
         		} else {
             		if(data.indexWithinBounds(blockPos2) && !meshed.contains(blockPos2)) {
@@ -115,13 +114,15 @@ public class Chunk extends AbstractControl {
         	}
         }
         System.out.print(".");
-        world.renderExec.execute(new Runnable() {
-        	@Override
-        	public void run() {
-                MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
-                getGeometry().updateModelBound();
-        	}
-        });
+        if(doMesh) {
+        	world.renderExec.execute(new Runnable() {
+        		@Override
+        		public void run() {
+        			MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        			getGeometry().updateModelBound();
+        		}
+        	});
+        }
 	}
 
 	@Override

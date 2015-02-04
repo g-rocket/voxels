@@ -25,7 +25,7 @@ public class WorldMap {
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
 	private final TPath savePath;
-	public final Executor exec = Executors.newWorkStealingPool();
+	public final ExecutorService exec = Executors.newWorkStealingPool();
 	public final Executor renderExec;
 	public volatile boolean chunksShouldUnload = true;
 	
@@ -62,14 +62,34 @@ public class WorldMap {
 		this.blockMaterial = blockMaterial;
 		this.renderExec = renderThreadExecutor;
 		
-		/*new Timer(true).schedule(new TimerTask() {
-			
+		
+		/*new Thread(new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("\nunloading chunks");
-				chunksShouldUnload = false;
+				while(true) {
+					synchronized (chunksToLoad) {
+						if(chunksToLoad.isEmpty()) {
+							try {
+								chunksToLoad.wait();
+							} catch (InterruptedException e) {
+								System.err.println("Interrupted while waiting for chunks that need loading");
+							}
+						}
+						if(chunksToLoad.isEmpty()) continue;
+						Coord3 chunkToLoad = chunksToLoad.pop();
+						if(isLoaded(chunkToLoad)) {
+							getChunk(chunkToLoad);
+						}
+						exec.submit(new Runnable() {
+							@Override
+							public void run() {
+								getChunk(chunksToLoad.pop());
+							}
+						});
+					}
+				}
 			}
-		}, 12000);*/
+		});//.start();*/
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -83,6 +103,13 @@ public class WorldMap {
 				floorDiv(blockPos.x, chunkSize.x));
 	}
 	
+	
+	/**
+	 * Get a chunk, loading or generating it if necessary
+	 * Will block until the chunk is loaded
+	 * @param chunkPos where to get the chunk from (in chunk coordinates)
+	 * @return the chunk
+	 */
 	public Chunk getChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c != null) {
@@ -109,6 +136,7 @@ public class WorldMap {
 	}
 	
 	public void unloadWorld() {
+		exec.shutdownNow();
 		chunksShouldUnload = false;
 		for(Iterator<Map.Entry<Coord3, Chunk>> chunkI = map.entrySet().iterator(); chunkI.hasNext();) {
 			unloadChunk(chunkI.next().getValue());
@@ -150,12 +178,26 @@ public class WorldMap {
 	}
 	
 	public void loadChunk(Coord3 chunkPos) {
-		exec.execute(new Runnable() {
+		/*exec.execute(new Runnable() {
 			@Override
 			public void run() {
 				getChunk(chunkPos);
 			}
-		});
+		});*/
+		if(isLoaded(chunkPos)) {
+			getChunk(chunkPos);
+		} else {
+			exec.submit(new Runnable() {
+				@Override
+				public void run() {
+					getChunk(chunkPos);
+				}
+			});
+			/*synchronized (chunksToLoad) {
+				chunksToLoad.push(chunkPos);
+				chunksToLoad.notifyAll();
+			}*/
+		}
 	}
 	
 	public boolean isLoaded(Coord3 chunkPos) {
@@ -234,7 +276,12 @@ public class WorldMap {
 				floorDiv(cameraPos.y, chunkSize.y),
 				floorDiv(cameraPos.z, chunkSize.z));
 		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(4,4,3))) {
-			getChunk(c);
+			loadChunk(c);
 		}
+	}
+
+	public boolean shouldUnload(Coord3 globalPosition) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
