@@ -42,17 +42,33 @@ public class Coord3 {
 	public Coord3 times(Coord3 c) {
 		return new Coord3(x * c.x, y * c.y, z * c.z);
 	}
+
+	public Coord3 times(double d) {
+		return new Coord3((int)(x * d), (int)(y * d), (int)(z * d));
+	}
 	
 	public static Coord3 multiply(Coord3 c1, Coord3 c2) {
 		return c1.times(c2);
+	}
+
+	public static Coord3 multiply(Coord3 c, double d) {
+		return new Coord3((int)(c.x * d), (int)(c.y * d), (int)(c.z * d));
 	}
 	
 	public Coord3 divBy(Coord3 c) {
 		return new Coord3(x / c.x, y / c.y, z / c.y);
 	}
+
+	public Coord3 divBy(double d) {
+		return new Coord3((int)(x / d), (int)(y / d), (int)(z / d));
+	}
 	
 	public static Coord3 divide(Coord3 c1, Coord3 c2) {
 		return c1.divBy(c2);
+	}
+
+	public static Coord3 divide(Coord3 c, double d) {
+		return new Coord3((int)(c.x / d), (int)(c.y / d), (int)(c.z / d));
 	}
 	
 	public int dot(Coord3 c) {
@@ -89,36 +105,6 @@ public class Coord3 {
 	
 	public static int volume(Coord3 c) {
 		return c.volume();
-	}
-	
-	public static List<Coord3> range(Coord3 start, Coord3 size) {
-		return new Range(start, size);
-	}
-	
-	private static class Range extends AbstractList<Coord3> {
-		private Coord3 start;
-		private Coord3 size;
-		
-		public Range(Coord3 start, Coord3 size) {
-			this.start = start;
-			this.size = size;
-		}
-
-		@Override
-		public Coord3 get(int i) {
-			if(i < 0 || i >= size()) throw new IllegalArgumentException(i+" out of range for "+this);
-			return new Coord3(i % size.x + start.x, (i/size.x) % size.y + start.y, i/(size.x*size.y) + start.z);
-		}
-
-		@Override
-		public int size() {
-			return size.x * size.y * size.z;
-		}
-		
-		@Override
-		public String toString() {
-			return "{["+start+":"+start.plus(size)+"], "+size+"}";
-		}
 	}
 	
 	@Override
