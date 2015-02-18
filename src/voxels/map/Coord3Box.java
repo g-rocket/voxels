@@ -2,9 +2,7 @@ package voxels.map;
 
 import java.util.*;
 
-import static voxels.map.Coord3.*;
-
-public class Coord3Box implements Coord3Range {
+public class Coord3Box extends AbstractList<Coord3> implements Coord3Range {
 	private final Coord3 start;
 	private final Coord3 size;
 	private final Coord3 end;
@@ -19,7 +17,7 @@ public class Coord3Box implements Coord3Range {
 		CENTER {
 			@Override
 			public Coord3 getStart(Coord3 anchor, Coord3 size) {
-				return anchor.plus(size.divBy(2));
+				return anchor.minus(size.divBy(2));
 			}
 		},
 		END {
@@ -50,39 +48,24 @@ public class Coord3Box implements Coord3Range {
 	}
 	
 	@Override
-	public Iterator<Coord3> iterator() {
-		return new Range(start, size).iterator();
+	public Coord3 get(int i) {
+		if(i < 0 || i >= size()) throw new IllegalArgumentException(i+" out of range for "+this);
+		return new Coord3(i % size.x + start.x, (i/size.x) % size.y + start.y, i/(size.x*size.y) + start.z);
 	}
-	
-	private static class Range extends AbstractList<Coord3> {
-		private Coord3 start;
-		private Coord3 size;
-		
-		public Range(Coord3 start, Coord3 size) {
-			this.start = start;
-			this.size = size;
-		}
 
-		@Override
-		public Coord3 get(int i) {
-			if(i < 0 || i >= size()) throw new IllegalArgumentException(i+" out of range for "+this);
-			return new Coord3(i % size.x + start.x, (i/size.x) % size.y + start.y, i/(size.x*size.y) + start.z);
-		}
-
-		@Override
-		public int size() {
-			return size.x * size.y * size.z;
-		}
-		
-		@Override
-		public String toString() {
-			return "{["+start+":"+start.plus(size)+"], "+size+"}";
-		}
+	@Override
+	public int size() {
+		return size.x * size.y * size.z;
 	}
 
 	@Override
 	public boolean containsCoord(Coord3 c) {
 		return c.x >= start.x && c.y >= start.y && c.z >= start.z && c.x < end.x && c.y < end.y && c.z < end.z;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Box:[{%.3f,%.3f,%.3f},{%.3f,%.3f,%.3f}),{%.3f,%.3f,%.3f}", start.x,start.y,start.z, end.x,end.y,end.z, size.x,size.y,size.z);
 	}
 
 }

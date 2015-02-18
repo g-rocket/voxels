@@ -275,7 +275,7 @@ public class WorldMap {
 				floorDiv(cameraPos.x, chunkSize.x),
 				floorDiv(cameraPos.y, chunkSize.y),
 				floorDiv(cameraPos.z, chunkSize.z));
-		for(Coord3 c: Coord3.range(cameraPos.minus(new Coord3(2,2,1)), new Coord3(4,4,3))) {
+		for(Coord3 c: Coord3Box.anchorSizeAlignment(cameraPos, new Coord3(3,3,2), Coord3Box.Alignment.CENTER)) {
 			loadChunk(c);
 		}
 	}

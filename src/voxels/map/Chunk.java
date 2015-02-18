@@ -55,9 +55,7 @@ public class Chunk extends AbstractControl {
 
 	@Override
 	protected void controlUpdate(float tpf) {
-		ticksSinceNeeded += tpf;
-		if(ticksSinceNeeded > 16f) {
-			if(world.isLoaded(globalPosition) && world.shouldUnload(globalPosition) && world.chunksShouldUnload && !isUnloading) {
+			if(world.isLoaded(globalPosition) && world.shouldUnload(globalPosition) && !isUnloading) {
 				isUnloading = true;
 				System.out.print("*");
 				world.exec.execute(new Runnable() {
@@ -67,7 +65,6 @@ public class Chunk extends AbstractControl {
 					}
 				});
 			}
-		}
 		if(meshDirty) {
 			meshDirty = false;
 			world.exec.execute(new Runnable() {
@@ -80,19 +77,18 @@ public class Chunk extends AbstractControl {
 	}
 
 	public Iterable<Coord3> blocksPoss() {
-		return Coord3.range(position, world.chunkSize);
+		return Coord3Box.anchorSizeAlignment(position, world.chunkSize, Coord3Box.Alignment.START);
 	}
 	
 	private void buildMesh(boolean doMesh) {
         MeshSet mset = new MeshSet();
-        Coord3 csm1 = world.chunkSize.minus(c3(1,1,1));
 		List<Coord3> toMesh = new ListStartedList<>(
-				Coord3.range(position, world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1))),
-				Coord3.range(position, world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0))),
-				Coord3.range(position, world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0))),
-				Coord3.range(position.plus(csm1.times(c3(0,0,1))), world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1))),
-				Coord3.range(position.plus(csm1.times(c3(0,1,0))), world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0))),
-				Coord3.range(position.plus(csm1.times(c3(1,0,0))), world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0)))
+				Coord3Box.anchorSizeAlignment(position, world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1)), Coord3Box.Alignment.START),
+				Coord3Box.anchorSizeAlignment(position, world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0)), Coord3Box.Alignment.START),
+				Coord3Box.anchorSizeAlignment(position, world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0)), Coord3Box.Alignment.START),
+				Coord3Box.anchorSizeAlignment(position.plus(world.chunkSize), world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1)), Coord3Box.Alignment.END),
+				Coord3Box.anchorSizeAlignment(position.plus(world.chunkSize), world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0)), Coord3Box.Alignment.END),
+				Coord3Box.anchorSizeAlignment(position.plus(world.chunkSize), world.chunkSize.times(c3(0,1,1)).plus(c3(1,0,0)), Coord3Box.Alignment.END)
 		);
 		Set<Coord3> meshed = new HashSet<>();
         for(Coord3 blockPos: toMesh){
