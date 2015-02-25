@@ -26,8 +26,43 @@ public class WorldMap {
 	public final TerrainGenerator terrainGenerator;
 	private final TPath savePath;
 	public final ExecutorService exec = Executors.newWorkStealingPool();
+	public final GeneratorExecutor generatorExec = new GeneratorExecutor(Runtime.getRuntime().availableProcessors());
 	public final Executor renderExec;
 	public volatile boolean chunksShouldUnload = true;
+	
+	public class GeneratorExecutor {
+		private Map<Coord3, Runnable> queuedProcesses = new HashMap<>();
+		private Set<GeneratorExecutorThread> threads = new HashSet<>();
+		private int numThreadsWaiting = 0;
+		private GeneratorExecutor(int maxConcurrentProcesses) {
+			for(int i = 0; i < maxConcurrentProcesses; i++) {
+				GeneratorExecutorThread t = new GeneratorExecutorThread();
+				threads.add(t);
+				t.start();
+			}
+		}
+		
+		private class GeneratorExecutorThread extends Thread {
+			@Override
+			public void run() {
+				while(true) {
+					if(queuedProcesses.isEmpty()) {
+						synchronized (GeneratorExecutor.this) {
+							numThreadsWaiting++;
+							try {
+								GeneratorExecutor.this.wait();
+							} catch (InterruptedException e) {
+								return;
+							}
+							numThreadsWaiting--;
+						}
+					} else {
+						//TODO: find the most important chunk to generate, and generate it
+					}
+				}
+			}
+		}
+	}
 	
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
 		this.savePath = new TPath(saveFile);
