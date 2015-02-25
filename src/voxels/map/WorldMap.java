@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.*;
 
 import voxels.block.*;
 import voxels.generate.*;
@@ -29,11 +30,67 @@ public class WorldMap {
 	public final GeneratorExecutor generatorExec = new GeneratorExecutor(Runtime.getRuntime().availableProcessors());
 	public final Executor renderExec;
 	public volatile boolean chunksShouldUnload = true;
+	public final Supplier<List<Coord3>> playersLocations;
+	public final Coord3 unloadDistance;
+	public final Coord3 loadDistance;
 	
 	public class GeneratorExecutor {
-		private Map<Coord3, Runnable> queuedProcesses = new HashMap<>();
+		private Map<Coord3, ChunkGenerationProcess> queuedProcesses = new HashMap<>();
 		private Set<GeneratorExecutorThread> threads = new HashSet<>();
 		private int numThreadsWaiting = 0;
+		private boolean stopping = false;
+		
+		public class ChunkGenerationProcess {
+			public final Runnable process;
+			public final IntSupplier priority;
+			
+			public ChunkGenerationProcess(Runnable process, IntSupplier priority) {
+				this.process = process;
+				this.priority = priority;
+			}
+		}
+		
+		private class GeneratorExecutorThread extends Thread {
+			@Override
+			public void run() {
+				while(true) {
+					Runnable process = null;
+					synchronized (GeneratorExecutor.this) {
+						if(queuedProcesses.isEmpty()) {
+							numThreadsWaiting++;
+							try {
+								GeneratorExecutor.this.wait();
+							} catch (InterruptedException e) {
+								synchronized (threads) {
+									threads.remove(this);
+									if(threads.isEmpty()) threads.notifyAll();
+								}
+								return;
+							}
+							numThreadsWaiting--;
+						} else {
+							int maxPriority = Integer.MIN_VALUE;
+							for(ChunkGenerationProcess cgp: queuedProcesses.values()) {
+								int cgpPriority = cgp.priority.getAsInt();
+								if(cgpPriority > maxPriority) {
+									maxPriority = cgpPriority;
+									process = cgp.process;
+								}
+							}
+						}
+					}
+					if(process != null) process.run();
+					if(stopping) {
+						synchronized (threads) {
+							threads.remove(this);
+							if(threads.isEmpty()) threads.notifyAll();
+						}
+						return;
+					}
+				}
+			}
+		}
+		
 		private GeneratorExecutor(int maxConcurrentProcesses) {
 			for(int i = 0; i < maxConcurrentProcesses; i++) {
 				GeneratorExecutorThread t = new GeneratorExecutorThread();
@@ -42,29 +99,34 @@ public class WorldMap {
 			}
 		}
 		
-		private class GeneratorExecutorThread extends Thread {
-			@Override
-			public void run() {
-				while(true) {
-					if(queuedProcesses.isEmpty()) {
-						synchronized (GeneratorExecutor.this) {
-							numThreadsWaiting++;
-							try {
-								GeneratorExecutor.this.wait();
-							} catch (InterruptedException e) {
-								return;
-							}
-							numThreadsWaiting--;
-						}
-					} else {
-						//TODO: find the most important chunk to generate, and generate it
+		public boolean addProcess(Coord3 chunkPos, Runnable generationProcess, IntSupplier priority) {
+			boolean wasEmpty = queuedProcesses.put(chunkPos, new ChunkGenerationProcess(generationProcess, priority)) == null;
+			if(numThreadsWaiting > 0) {
+				synchronized (this) {
+					this.notify();
+				}
+			}
+			return wasEmpty;
+		}
+		
+		public void stop(boolean blockUntilStopped) {
+			stopping = true;
+			for(GeneratorExecutorThread t: threads) {
+				t.interrupt();
+			}
+			if(blockUntilStopped) {
+				synchronized (this) {
+					try {
+						this.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
 				}
 			}
 		}
 	}
 	
-	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
+	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
 		this.savePath = new TPath(saveFile);
 		try {
 			FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
@@ -86,17 +148,27 @@ public class WorldMap {
 					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
 					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
 					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24));
+			unloadDistance = new Coord3(
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24));
+			loadDistance = new Coord3(
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24),
+					props[i++] | (props[i++]<<8) | (props[i++]<<16) | (props[i++]<<24));
 			terrainGenerator = new TerrainGenerator(
 					props[i++] | (props[i++]<<8l) | (props[i++]<<16l) | (props[i++]<<24l) |
 					(props[i++]<<32l) | (props[i++]<<40l) | (props[i++]<<48l) | (props[i++]<<56l));
 		} else {
 			chunkSize = new Coord3(32,32,16);
+			unloadDistance = new Coord3(3,3,2);
+			loadDistance = new Coord3(2,2,1);
 			terrainGenerator = new TerrainGenerator();
 		}
 		this.worldNode = worldNode;
 		this.blockMaterial = blockMaterial;
 		this.renderExec = renderThreadExecutor;
-		
+		this.playersLocations = playersLocations;
 		
 		/*new Thread(new Runnable() {
 			@Override
@@ -177,7 +249,7 @@ public class WorldMap {
 			unloadChunk(chunkI.next().getValue());
 			chunkI.remove();
 		}
-		byte[] props = new byte[24];
+		byte[] props = new byte[88];
 		int i = 0;
 		props[i++] = (byte)((0xff << 0) & chunkSize.x);
 		props[i++] = (byte)((0xff << 8) & chunkSize.x);
@@ -193,6 +265,36 @@ public class WorldMap {
 		props[i++] = (byte)((0xff << 8) & chunkSize.z);
 		props[i++] = (byte)((0xff << 16) & chunkSize.z);
 		props[i++] = (byte)((0xff << 24) & chunkSize.z);
+		
+		props[i++] = (byte)((0xff << 0) & unloadDistance.x);
+		props[i++] = (byte)((0xff << 8) & unloadDistance.x);
+		props[i++] = (byte)((0xff << 16) & unloadDistance.x);
+		props[i++] = (byte)((0xff << 24) & unloadDistance.x);
+		
+		props[i++] = (byte)((0xff << 0) & unloadDistance.y);
+		props[i++] = (byte)((0xff << 8) & unloadDistance.y);
+		props[i++] = (byte)((0xff << 16) & unloadDistance.y);
+		props[i++] = (byte)((0xff << 24) & unloadDistance.y);
+		
+		props[i++] = (byte)((0xff << 0) & unloadDistance.z);
+		props[i++] = (byte)((0xff << 8) & unloadDistance.z);
+		props[i++] = (byte)((0xff << 16) & unloadDistance.z);
+		props[i++] = (byte)((0xff << 24) & unloadDistance.z);
+		
+		props[i++] = (byte)((0xff << 0) & loadDistance.x);
+		props[i++] = (byte)((0xff << 8) & loadDistance.x);
+		props[i++] = (byte)((0xff << 16) & loadDistance.x);
+		props[i++] = (byte)((0xff << 24) & loadDistance.x);
+		
+		props[i++] = (byte)((0xff << 0) & loadDistance.y);
+		props[i++] = (byte)((0xff << 8) & loadDistance.y);
+		props[i++] = (byte)((0xff << 16) & loadDistance.y);
+		props[i++] = (byte)((0xff << 24) & loadDistance.y);
+		
+		props[i++] = (byte)((0xff << 0) & loadDistance.z);
+		props[i++] = (byte)((0xff << 8) & loadDistance.z);
+		props[i++] = (byte)((0xff << 16) & loadDistance.z);
+		props[i++] = (byte)((0xff << 24) & loadDistance.z);
 
 		props[i++] = (byte)((0xff << 0l) & terrainGenerator.seed);
 		props[i++] = (byte)((0xff << 8l) & terrainGenerator.seed);
@@ -213,26 +315,7 @@ public class WorldMap {
 	}
 	
 	public void loadChunk(Coord3 chunkPos) {
-		/*exec.execute(new Runnable() {
-			@Override
-			public void run() {
-				getChunk(chunkPos);
-			}
-		});*/
-		if(isLoaded(chunkPos)) {
-			getChunk(chunkPos);
-		} else {
-			exec.submit(new Runnable() {
-				@Override
-				public void run() {
-					getChunk(chunkPos);
-				}
-			});
-			/*synchronized (chunksToLoad) {
-				chunksToLoad.push(chunkPos);
-				chunksToLoad.notifyAll();
-			}*/
-		}
+		getChunk(chunkPos);
 	}
 	
 	public boolean isLoaded(Coord3 chunkPos) {
@@ -244,63 +327,49 @@ public class WorldMap {
 	}
 	
 	private void unloadChunk(Chunk c) {
-		exec.execute(new Runnable() {
-			@Override
-			public void run() {
-				if(c == null) {
-					System.err.println("Trying to unload a chunk that isn't loaded!");
-					return;
-				}
+		if(c == null) {
+			System.err.println("Trying to unload a chunk that isn't loaded!");
+			return;
+		}
+		try {
+			TPath chunkSave = savePath.resolve(c.globalPosition.toString());
+			if(Files.notExists(chunkSave)) {
 				try {
-					TPath chunkSave = savePath.resolve(c.globalPosition.toString());
-					if(Files.notExists(chunkSave)) {
-						try {
-							Files.createFile(chunkSave);
-						} catch(FileAlreadyExistsException e) {
-							e.printStackTrace();
-						}
-					}
-					if(Files.isWritable(chunkSave)) {
-						c.save(Files.newOutputStream(chunkSave));
-					} else {
-						System.err.println("Error saving chunk at "+c.globalPosition+":");
-						System.err.println("File not writeable");
-					}
-				} catch (IOException e) {
-					System.err.println("Error saving chunk at "+c.globalPosition+":");
+					Files.createFile(chunkSave);
+				} catch(FileAlreadyExistsException e) {
 					e.printStackTrace();
 				}
-				renderExec.execute(new Runnable(){
-					@Override
-					public void run() {
-						c.setEnabled(false);
-						c.getSpatial().removeFromParent();
-					}
-				});
 			}
+			if(Files.isWritable(chunkSave)) {
+				c.save(Files.newOutputStream(chunkSave));
+			} else {
+				System.err.println("Error saving chunk at "+c.globalPosition+":");
+				System.err.println("File not writeable");
+			}
+		} catch (IOException e) {
+			System.err.println("Error saving chunk at "+c.globalPosition+":");
+			e.printStackTrace();
+		}
+		renderExec.execute(() -> {
+			c.setEnabled(false);
+			c.getSpatial().removeFromParent();
 		});
 	}
 	
 	private Chunk readChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator, new ByteArrayInputStream(Files.readAllBytes(chunkSave)));
-		renderExec.execute(new Runnable() {
-			@Override
-			public void run() {
-				map.put(chunkPos, c);
-				worldNode.attachChild(c.getGeometry());
-			}
+		renderExec.execute(() -> {
+			map.put(chunkPos, c);
+			worldNode.attachChild(c.getGeometry());
 		});
 		return c;
 	}
 
 	private Chunk generateChunk(Coord3 chunkPos) {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator);
-		renderExec.execute(new Runnable() {
-			@Override
-			public void run() {
-				map.put(chunkPos, c);
-				worldNode.attachChild(c.getGeometry());
-			}
+		renderExec.execute(() -> {
+			map.put(chunkPos, c);
+			worldNode.attachChild(c.getGeometry());
 		});
 		return c;
 	}
@@ -316,7 +385,6 @@ public class WorldMap {
 	}
 
 	public boolean shouldUnload(Coord3 globalPosition) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 }

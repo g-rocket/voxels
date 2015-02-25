@@ -137,4 +137,14 @@ public class Coord3 {
 		if (z != other.z) return false;
 		return true;
 	}
+
+	public double distanceTo(Coord3 c) {
+		return Math.sqrt((x - c.x)*(x - c.x) +
+						 (y - c.y)*(y - c.y) +
+						 (z - c.z)*(z - c.z));
+	}
+	
+	public double hypot(Coord3 c1, Coord3 c2) {
+		return c1.distanceTo(c2);
+	}
 }

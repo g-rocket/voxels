@@ -133,9 +133,8 @@ public class VoxelWorld extends SimpleApplication {
         setUpTheCam();
 		String worldFile = System.getProperty("user.home")+System.getProperty("file.separator")+
 				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip";
-		world = new World(
-					new WorldMap(rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor),
-					getStateManager());
+		world = new World(getStateManager(),
+					rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
 		//world.addPlayer(new MainPlayer(cam));
 		world.addPlayer(new FakePlayer(cam));
         //cam.setLocation(new Coord3(0,0,0).asVector());

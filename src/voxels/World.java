@@ -1,6 +1,8 @@
 package voxels;
 
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import voxels.entity.*;
 import voxels.map.*;
@@ -8,6 +10,8 @@ import voxels.map.*;
 import com.jme3.app.state.*;
 import com.jme3.bullet.*;
 import com.jme3.bullet.control.*;
+import com.jme3.material.*;
+import com.jme3.scene.*;
 
 public class World {
 	private final WorldMap map;
@@ -20,8 +24,20 @@ public class World {
     	}
     }
 	
-	public World(WorldMap map, AppStateManager parentASM) {
-		this.map = map;
+	public World(AppStateManager parentASM, Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
+		this.map = new WorldMap(worldNode, blockMaterial, saveFile, renderThreadExecutor, () -> {
+			return new AbstractList<Coord3>() {
+				@Override
+				public Coord3 get(int index) {
+					return new Coord3(players.get(index).getLocation());
+				}
+
+				@Override
+				public int size() {
+					return players.size();
+				}
+			};
+		});
 		physics = new BulletAppState();
 		parentASM.attach(physics);
 	}

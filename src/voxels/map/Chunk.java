@@ -34,7 +34,7 @@ public class Chunk extends AbstractControl {
 		this.position = position.times(world.chunkSize);
 		this.world = world;
 		data = new LazyGeneratedChunkData(world.chunkSize, this.position, terrainGenerator);
-		buildMesh(false); // pre-generate the terrain
+		//buildMesh(false); // pre-generate the terrain
 		blocks = new UnmodifiableChunkData(data);
 		meshDirty = true;
 	}
@@ -58,20 +58,21 @@ public class Chunk extends AbstractControl {
 			if(world.isLoaded(globalPosition) && world.shouldUnload(globalPosition) && !isUnloading) {
 				isUnloading = true;
 				System.out.print("*");
-				world.exec.execute(new Runnable() {
-					@Override
-					public void run() {
-						world.unloadChunk(globalPosition);
-					}
+				world.exec.execute(() -> {
+					world.unloadChunk(globalPosition);
 				});
 			}
 		if(meshDirty) {
 			meshDirty = false;
-			world.exec.execute(new Runnable() {
-				@Override
-				public void run() {
-					buildMesh(true);
+			world.generatorExec.addProcess(globalPosition, () -> {
+				buildMesh(true);
+			}, () -> {
+				int priority = Integer.MIN_VALUE;
+				for(Coord3 loc: world.playersLocations.get()) {
+					int dist = (int) loc.distanceTo(position);
+					if(-dist > priority) priority = -dist;
 				}
+				return priority;
 			});
 		}
 	}
@@ -111,12 +112,9 @@ public class Chunk extends AbstractControl {
         }
         System.out.print(".");
         if(doMesh) {
-        	world.renderExec.execute(new Runnable() {
-        		@Override
-        		public void run() {
-        			MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
-        			getGeometry().updateModelBound();
-        		}
+        	world.renderExec.execute(() -> {
+        		MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        		getGeometry().updateModelBound();
         	});
         }
 	}

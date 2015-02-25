@@ -9,7 +9,7 @@ import voxels.map.*;
 import com.sudoplay.joise.module.*;
 
 public class TerrainGenerator {
-	private final Module terrain;
+	private final ThreadLocal<Module> terrain;
 	public final long seed;
 	
 	public TerrainGenerator() {
@@ -18,7 +18,12 @@ public class TerrainGenerator {
 	
 	public TerrainGenerator(long seed) {
 		this.seed = seed;
-		terrain = setupNoiseGenerator(seed);
+		terrain = new ThreadLocal<Module>() {
+			@Override
+			protected Module initialValue() {
+				return setupNoiseGenerator(seed);
+			}
+		};
 	}
 	
 	private Module setupNoiseGenerator(long seed) {
@@ -33,6 +38,6 @@ public class TerrainGenerator {
 	}
 
 	public BlockType getBlockAtPosistion(Coord3 pos) {
-		return BlockType.getBlock((int)terrain.get(pos.x, pos.y, pos.z));
+		return BlockType.getBlock((int)terrain.get().get(pos.x, pos.y, pos.z));
 	}
 }
