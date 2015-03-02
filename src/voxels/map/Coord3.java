@@ -147,4 +147,32 @@ public class Coord3 {
 	public double hypot(Coord3 c1, Coord3 c2) {
 		return c1.distanceTo(c2);
 	}
+
+	public Coord3 eabs() {
+		return new Coord3(Math.abs(x), Math.abs(y), Math.abs(z));
+	}
+	
+	public boolean lt(Coord3 c) {
+		return x < c.x && y < c.y && z < c.z;
+	}
+	
+	public boolean le(Coord3 c) {
+		return x <= c.x && y <= c.y && z <= c.z;
+	}
+	
+	public boolean gt(Coord3 c) {
+		return !le(c);
+	}
+	
+	public boolean ge(Coord3 c) {
+		return !lt(c);
+	}
+	
+	public boolean eq(Coord3 c) {
+		return x == c.x && y == c.y && z == c.z;
+	}
+	
+	public boolean ne(Coord3 c) {
+		return !eq(c);
+	}
 }

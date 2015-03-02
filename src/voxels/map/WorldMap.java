@@ -95,14 +95,17 @@ public class WorldMap {
 			for(int i = 0; i < maxConcurrentProcesses; i++) {
 				GeneratorExecutorThread t = new GeneratorExecutorThread();
 				threads.add(t);
+				t.setPriority(Thread.MIN_PRIORITY);
+				t.setDaemon(true);
 				t.start();
 			}
 		}
 		
 		public boolean addProcess(Coord3 chunkPos, Runnable generationProcess, IntSupplier priority) {
-			boolean wasEmpty = queuedProcesses.put(chunkPos, new ChunkGenerationProcess(generationProcess, priority)) == null;
-			if(numThreadsWaiting > 0) {
-				synchronized (this) {
+			boolean wasEmpty;
+			synchronized (this) {
+				wasEmpty = queuedProcesses.put(chunkPos, new ChunkGenerationProcess(generationProcess, priority)) == null;
+				if(numThreadsWaiting > 0) {
 					this.notify();
 				}
 			}
@@ -244,6 +247,7 @@ public class WorldMap {
 	
 	public void unloadWorld() {
 		exec.shutdownNow();
+		generatorExec.stop(true);
 		chunksShouldUnload = false;
 		for(Iterator<Map.Entry<Coord3, Chunk>> chunkI = map.entrySet().iterator(); chunkI.hasNext();) {
 			unloadChunk(chunkI.next().getValue());
@@ -385,6 +389,9 @@ public class WorldMap {
 	}
 
 	public boolean shouldUnload(Coord3 globalPosition) {
-		return false;
+		for(Coord3 playerLoc: playersLocations.get()) {
+			if(playerLoc.divBy(chunkSize).minus(globalPosition).eabs().le(unloadDistance)) return false;
+		}
+		return true;
 	}
 }
