@@ -16,7 +16,7 @@ import com.jme3.scene.*;
 
 import de.schlichtherle.truezip.nio.file.*;
 
-/*
+/**
  * Deals with the overarching structure (knows about ALL the chunks)
  */
 public class WorldMap {
@@ -137,7 +137,6 @@ public class WorldMap {
 		this.savePath = new TPath(saveFile);
 		try {
 			FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
-			//if(Files.notExists(savePath.getParent())) Files.createDirectories(savePath.getParent());
 			if(Files.notExists(savePath)) Files.createDirectories(savePath);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -176,34 +175,6 @@ public class WorldMap {
 		this.blockMaterial = blockMaterial;
 		this.renderExec = renderThreadExecutor;
 		this.playersLocations = playersLocations;
-		
-		/*new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while(true) {
-					synchronized (chunksToLoad) {
-						if(chunksToLoad.isEmpty()) {
-							try {
-								chunksToLoad.wait();
-							} catch (InterruptedException e) {
-								System.err.println("Interrupted while waiting for chunks that need loading");
-							}
-						}
-						if(chunksToLoad.isEmpty()) continue;
-						Coord3 chunkToLoad = chunksToLoad.pop();
-						if(isLoaded(chunkToLoad)) {
-							getChunk(chunkToLoad);
-						}
-						exec.submit(new Runnable() {
-							@Override
-							public void run() {
-								getChunk(chunksToLoad.pop());
-							}
-						});
-					}
-				}
-			}
-		});//.start();*/
 	}
 	
 	public BlockType getBlock(Coord3 blockPos) {
@@ -233,10 +204,8 @@ public class WorldMap {
 			try {
 				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
-					//System.out.println("loading chunk at "+chunkPos);
 					newChunk = readChunk(chunkPos, chunkSave);
 				} else {
-					//System.out.println("generating chunk at "+chunkPos);
 					newChunk = generateChunk(chunkPos);
 				}
 			} catch (IOException e) {
