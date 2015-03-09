@@ -55,6 +55,7 @@ public class WorldMap {
 			public void run() {
 				while(true) {
 					Runnable process = null;
+					Coord3 processKey = null;
 					synchronized (GeneratorExecutor.this) {
 						if(queuedProcesses.isEmpty()) {
 							numThreadsWaiting++;
@@ -70,16 +71,19 @@ public class WorldMap {
 							numThreadsWaiting--;
 						} else {
 							int maxPriority = Integer.MIN_VALUE;
-							for(ChunkGenerationProcess cgp: queuedProcesses.values()) {
+							for(Map.Entry<Coord3, ChunkGenerationProcess> e: queuedProcesses.entrySet()) {
+								ChunkGenerationProcess cgp = e.getValue();
 								int cgpPriority = cgp.priority.getAsInt();
 								if(cgpPriority > maxPriority) {
 									maxPriority = cgpPriority;
 									process = cgp.process;
+									processKey = e.getKey();
 								}
 							}
 						}
 					}
 					if(process != null) process.run();
+					queuedProcesses.remove(processKey);
 					if(stopping) {
 						synchronized (threads) {
 							threads.remove(this);
@@ -227,21 +231,23 @@ public class WorldMap {
 			c.setNeeded();
 			return c;
 		} else {
+			Chunk newChunk;
 			try {
 				TPath chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
 					//System.out.println("loading chunk at "+chunkPos);
-					return readChunk(chunkPos, chunkSave);
+					newChunk = readChunk(chunkPos, chunkSave);
 				} else {
 					//System.out.println("generating chunk at "+chunkPos);
-					return generateChunk(chunkPos);
+					newChunk = generateChunk(chunkPos);
 				}
 			} catch (IOException e) {
 				System.err.println("error loading chunk at "+chunkPos);
 				e.printStackTrace();
-				return generateChunk(chunkPos);
+				newChunk = generateChunk(chunkPos);
 			}
-			
+			map.put(chunkPos, newChunk);
+			return newChunk;
 		}
 	}
 	

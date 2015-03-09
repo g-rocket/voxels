@@ -66,7 +66,6 @@ public class Chunk extends AbstractControl {
 			meshDirty = false;
 			world.generatorExec.addProcess(globalPosition, () -> {
 				buildMesh(true);
-				System.out.println(globalPosition);
 			}, () -> {
 				int priority = Integer.MIN_VALUE;
 				for(Coord3 loc: world.playersLocations.get()) {
