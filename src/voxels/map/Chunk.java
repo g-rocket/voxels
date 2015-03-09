@@ -26,7 +26,6 @@ public class Chunk extends AbstractControl {
 	private final ChunkData data;
 	public final ChunkData blocks;
 	public boolean meshDirty;
-	private float ticksSinceNeeded = 0;
 	private boolean isUnloading = false;
 	
 	public Chunk(Coord3 position, WorldMap world, TerrainGenerator terrainGenerator) {
@@ -136,8 +135,4 @@ public class Chunk extends AbstractControl {
         }
         return geom;
     }
-
-	public void setNeeded() {
-		ticksSinceNeeded = 0;
-	}
 }

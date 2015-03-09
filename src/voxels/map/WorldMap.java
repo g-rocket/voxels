@@ -227,8 +227,6 @@ public class WorldMap {
 	public Chunk getChunk(Coord3 chunkPos) {
 		Chunk c = map.get(chunkPos);
 		if(c != null) {
-			//System.out.println("already loaded chunk at "+chunkPos);
-			c.setNeeded();
 			return c;
 		} else {
 			Chunk newChunk;
