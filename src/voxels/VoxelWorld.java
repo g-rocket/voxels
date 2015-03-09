@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import voxels.entity.*;
-import voxels.map.*;
 
 import com.jme3.app.*;
 import com.jme3.asset.*;
@@ -22,7 +21,7 @@ import com.jme3.texture.*;
 public class VoxelWorld extends SimpleApplication {
 	private MaterialLibrarian materialLibrarian;
 	private World world;
-	private ExecutorService renderThreadExecutor = new ExecutorService() {
+	private ExecutorService renderThreadExecutor = new AbstractExecutorService() {
 		class CallableRunnable<T> implements Callable<T>{
 			private final T result;
 			private final Runnable task;
@@ -46,21 +45,6 @@ public class VoxelWorld extends SimpleApplication {
 		}
 		
 		@Override
-		public <T> Future<T> submit(Runnable task, T result) {
-			return VoxelWorld.this.enqueue(new CallableRunnable<T>(task, result));
-		}
-		
-		@Override
-		public Future<?> submit(Runnable task) {
-			return VoxelWorld.this.enqueue(new CallableRunnable<Object>(task, null));
-		}
-		
-		@Override
-		public <T> Future<T> submit(Callable<T> task) {
-			return VoxelWorld.this.enqueue(task);
-		}
-		
-		@Override
 		public List<Runnable> shutdownNow() {
 			throw new UnsupportedOperationException("this synthetic executor doesn't know how to shut down");
 		}
@@ -78,40 +62,6 @@ public class VoxelWorld extends SimpleApplication {
 		@Override
 		public boolean isShutdown() {
 			return false;
-		}
-		
-		@Override
-		public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-				long timeout, TimeUnit unit) throws InterruptedException,
-				ExecutionException, TimeoutException {
-			throw new UnsupportedOperationException("this synthetic executor doesn't support timeouts");
-		}
-		
-		/**
-		 * just runs the first task
-		 */
-		@Override
-		public <T> T invokeAny(Collection<? extends Callable<T>> tasks)
-				throws InterruptedException, ExecutionException {
-			if(tasks.isEmpty()) return null;
-			return submit(tasks.iterator().next()).get();
-		}
-		
-		@Override
-		public <T> List<Future<T>> invokeAll(
-				Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
-				throws InterruptedException {
-			throw new UnsupportedOperationException("this synthetic executor doesn't support timeouts");
-		}
-		
-		@Override
-		public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
-				throws InterruptedException {
-			List<Future<T>> futures = new ArrayList<>(tasks.size());
-			for(Callable<T> task: tasks) {
-				futures.add(VoxelWorld.this.enqueue(task));
-			}
-			return futures;
 		}
 		
 		@Override
