@@ -213,8 +213,8 @@ public class WorldMap {
 	private Coord3 chunkPos(Coord3 blockPos) {
 		return new Coord3(
 				floorDiv(blockPos.x, chunkSize.x), 
-				floorDiv(blockPos.x, chunkSize.x), 
-				floorDiv(blockPos.x, chunkSize.x));
+				floorDiv(blockPos.y, chunkSize.y), 
+				floorDiv(blockPos.z, chunkSize.z));
 	}
 	
 	
