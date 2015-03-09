@@ -82,7 +82,7 @@ public class VoxelWorld extends SimpleApplication {
         materialLibrarian = new MaterialLibrarian(assetManager);
         setUpTheCam();
 		String worldFile = System.getProperty("user.home")+System.getProperty("file.separator")+
-				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".zip";
+				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".voxelworld";
 		world = new World(getStateManager(),
 					rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
 		//world.addPlayer(new MainPlayer(cam));

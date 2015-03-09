@@ -136,7 +136,7 @@ public class WorldMap {
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
 		this.savePath = new TPath(saveFile);
 		try {
-			FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
+			//FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
 			if(Files.notExists(savePath)) Files.createDirectories(savePath);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -308,14 +308,17 @@ public class WorldMap {
 			System.err.println("Trying to unload a chunk that isn't loaded!");
 			return;
 		}
+		renderExec.execute(() -> {
+			c.setEnabled(false);
+			c.getSpatial().removeFromParent();
+		});
 		try {
 			TPath chunkSave = savePath.resolve(c.globalPosition.toString());
-			if(Files.notExists(chunkSave)) {
-				try {
-					Files.createFile(chunkSave);
-				} catch(FileAlreadyExistsException e) {
-					e.printStackTrace();
-				}
+			try {
+				Files.deleteIfExists(chunkSave);
+				Files.createFile(chunkSave);
+			} catch(FileAlreadyExistsException e) {
+				e.printStackTrace();
 			}
 			if(Files.isWritable(chunkSave)) {
 				c.save(Files.newOutputStream(chunkSave));
@@ -327,10 +330,6 @@ public class WorldMap {
 			System.err.println("Error saving chunk at "+c.globalPosition+":");
 			e.printStackTrace();
 		}
-		renderExec.execute(() -> {
-			c.setEnabled(false);
-			c.getSpatial().removeFromParent();
-		});
 	}
 	
 	private Chunk readChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
