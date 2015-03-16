@@ -14,8 +14,6 @@ import voxels.generate.*;
 import com.jme3.material.*;
 import com.jme3.scene.*;
 
-import de.schlichtherle.truezip.nio.file.*;
-
 /**
  * Deals with the overarching structure (knows about ALL the chunks)
  */
@@ -25,7 +23,7 @@ public class WorldMap {
 	private final Node worldNode;
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
-	private final TPath savePath;
+	private final Path savePath;
 	public final ExecutorService exec = Executors.newWorkStealingPool();
 	public final GeneratorExecutor generatorExec = new GeneratorExecutor(Runtime.getRuntime().availableProcessors());
 	public final Executor renderExec;
@@ -134,7 +132,7 @@ public class WorldMap {
 	}
 	
 	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
-		this.savePath = new TPath(saveFile);
+		this.savePath = Paths.get(saveFile.toURI());
 		try {
 			//FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
 			if(Files.notExists(savePath)) Files.createDirectories(savePath);
@@ -202,7 +200,7 @@ public class WorldMap {
 		} else {
 			Chunk newChunk;
 			try {
-				TPath chunkSave = savePath.resolve(chunkPos.toString());
+				Path chunkSave = savePath.resolve(chunkPos.toString());
 				if(Files.isReadable(chunkSave)) {
 					newChunk = readChunk(chunkPos, chunkSave);
 				} else {
@@ -313,7 +311,7 @@ public class WorldMap {
 			c.getSpatial().removeFromParent();
 		});
 		try {
-			TPath chunkSave = savePath.resolve(c.globalPosition.toString());
+			Path chunkSave = savePath.resolve(c.globalPosition.toString());
 			try {
 				Files.deleteIfExists(chunkSave);
 				Files.createFile(chunkSave);
@@ -332,7 +330,7 @@ public class WorldMap {
 		}
 	}
 	
-	private Chunk readChunk(Coord3 chunkPos, TPath chunkSave) throws IOException {
+	private Chunk readChunk(Coord3 chunkPos, Path chunkSave) throws IOException {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator, new ByteArrayInputStream(Files.readAllBytes(chunkSave)));
 		renderExec.execute(() -> {
 			map.put(chunkPos, c);
