@@ -5,6 +5,7 @@ import com.jme3.bullet.control.*;
 import com.jme3.input.controls.*;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
+import com.jme3.scene.*;
 
 public class MainPlayer extends BetterCharacterControl implements Player, ActionListener {
 	private final Camera camera;
@@ -15,8 +16,10 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 
 	public MainPlayer(Camera camera) {
 		super(.5f, 1.8f, 1f);
+		setSpatial(new Node("MainPlayer"));
 		setGravity(new Vector3f(0,1,0));
-		setPhysicsLocation(new Vector3f(0, 20, 0));
+		setPhysicsLocation(new Vector3f(0,100,0));
+		camera.setLocation(getLocation());
 		this.camera = camera;
 	}
 

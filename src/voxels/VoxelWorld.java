@@ -86,8 +86,10 @@ public class VoxelWorld extends SimpleApplication {
 						 + new Random().nextLong() + ".voxelworld";
 		world = new World(getStateManager(), rootNode,
 				materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-		// world.addPlayer(new MainPlayer(cam));
-		world.addPlayer(new FakePlayer(cam));
+		MainPlayer mainPlayer = new MainPlayer(cam);
+		setUpKeys(mainPlayer);
+		world.addPlayer(mainPlayer);
+		// world.addPlayer(new FakePlayer(cam));
 		// cam.setLocation(new Coord3(0,0,0).asVector());
 	}
 	
