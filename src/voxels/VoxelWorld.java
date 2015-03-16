@@ -17,12 +17,11 @@ import com.jme3.math.*;
 import com.jme3.system.*;
 import com.jme3.texture.*;
 
-
 public class VoxelWorld extends SimpleApplication {
 	private MaterialLibrarian materialLibrarian;
 	private World world;
 	private ExecutorService renderThreadExecutor = new AbstractExecutorService() {
-		class CallableRunnable<T> implements Callable<T>{
+		class CallableRunnable<T> implements Callable<T> {
 			private final T result;
 			private final Runnable task;
 			
@@ -36,7 +35,6 @@ public class VoxelWorld extends SimpleApplication {
 				task.run();
 				return result;
 			}
-			
 		}
 		
 		@Override
@@ -71,45 +69,48 @@ public class VoxelWorld extends SimpleApplication {
 		}
 	};
 	
-    @Override
-    public void simpleUpdate(float secondsPerFrame) {
-    	world.simpleUpdate(secondsPerFrame);
-    }
-
-    @Override
-    public void simpleInitApp() {
-    	viewPort.setBackgroundColor(ColorRGBA.Blue);
-        materialLibrarian = new MaterialLibrarian(assetManager);
-        setUpTheCam();
-		String worldFile = System.getProperty("user.home")+System.getProperty("file.separator")+
-				"voxelWorld"+System.getProperty("file.separator")+new Random().nextLong()+".voxelworld";
-		world = new World(getStateManager(),
-					rootNode, materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-		//world.addPlayer(new MainPlayer(cam));
-		world.addPlayer(new FakePlayer(cam));
-        //cam.setLocation(new Coord3(0,0,0).asVector());
+	@Override
+	public void simpleUpdate(float secondsPerFrame) {
+		world.simpleUpdate(secondsPerFrame);
 	}
-    
-    private void setUpKeys(InputListener player) {
-      inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
-      inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
-      inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
-      inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
-      inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
-      inputManager.addListener(player, "Left");
-      inputManager.addListener(player, "Right");
-      inputManager.addListener(player, "Up");
-      inputManager.addListener(player, "Down");
-      inputManager.addListener(player, "Jump");
-    }
-    
-	private static void ScreenSettings(VoxelWorld app, boolean fullScreen) {
+	
+	@Override
+	public void simpleInitApp() {
+		viewPort.setBackgroundColor(ColorRGBA.Blue);
+		materialLibrarian = new MaterialLibrarian(assetManager);
+		setUpTheCam();
+		String worldFile = System.getProperty("user.home")
+						 + System.getProperty("file.separator") 
+						 + "voxelWorld"
+						 + System.getProperty("file.separator")
+						 + new Random().nextLong() + ".voxelworld";
+		world = new World(getStateManager(), rootNode,
+				materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
+		// world.addPlayer(new MainPlayer(cam));
+		world.addPlayer(new FakePlayer(cam));
+		// cam.setLocation(new Coord3(0,0,0).asVector());
+	}
+	
+	private void setUpKeys(InputListener player) {
+		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
+		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
+		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
+		inputManager.addListener(player, "Left");
+		inputManager.addListener(player, "Right");
+		inputManager.addListener(player, "Up");
+		inputManager.addListener(player, "Down");
+		inputManager.addListener(player, "Jump");
+	}
+	
+	private void setupScreen(boolean fullScreen) {
 		GraphicsDevice[] screens = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		GraphicsDevice biggestScreen = null;
 		int maxPixelsSoFar = 0;
-		for(GraphicsDevice screen: screens){ // find biggest screen
+		for(GraphicsDevice screen: screens) { // find biggest screen
 			DisplayMode d = screen.getDisplayMode();
-			if(d.getWidth() * d.getHeight() > maxPixelsSoFar && (!fullScreen || screen.isFullScreenSupported())){
+			if(d.getWidth() * d.getHeight() > maxPixelsSoFar && (!fullScreen || screen.isFullScreenSupported())) {
 				biggestScreen = screen;
 				maxPixelsSoFar = d.getWidth() * d.getHeight();
 			}
@@ -117,24 +118,24 @@ public class VoxelWorld extends SimpleApplication {
 		DisplayMode d = biggestScreen.getDisplayMode();
 		AppSettings settings = new AppSettings(true);
 		float scale_screen = fullScreen ? 1f : .8f;
-		Vector2f screenDims = new Vector2f((int)(d.getWidth() * scale_screen ), (int)(d.getHeight() * scale_screen ));
-		settings.setResolution((int)screenDims.x,(int) screenDims.y);
+		Vector2f screenDims = new Vector2f((int)(d.getWidth() * scale_screen), (int)(d.getHeight() * scale_screen));
+		settings.setResolution((int)screenDims.x, (int)screenDims.y);
 		settings.setFrequency(d.getRefreshRate());
 		settings.setBitsPerPixel(d.getBitDepth());
 		if (fullScreen) {
 			settings.setFullscreen(biggestScreen.isFullScreenSupported());
 		}
-		app.setSettings(settings);
-		app.setShowSettings(false);
+		setSettings(settings);
+		setShowSettings(false);
 	}
-
+	
 	private void setUpTheCam() {
 		flyCam.setMoveSpeed(30);
 	}
 	
 	public static void main(String[] args) {
 		VoxelWorld app = new VoxelWorld();
-		ScreenSettings(app, false); // setup setting to prevent jme3 settings screen from showing
+		app.setupScreen(false); // setup setting to prevent jme3 settings screen from showing
 		app.start(); // start the game
 	}
 	
@@ -146,7 +147,7 @@ public class VoxelWorld extends SimpleApplication {
 		public MaterialLibrarian(AssetManager assetManager_) {
 			_assetManager = assetManager_;
 		}
-
+		
 		public Material getBlockMaterial() {
 			if (blockMaterial == null) {
 				Material wireMaterial = new Material(assetManager, "/Common/MatDefs/Misc/Unshaded.j3md");
@@ -157,7 +158,7 @@ public class VoxelWorld extends SimpleApplication {
 			}
 			return blockMaterial;
 		}
-
+		
 		public Material getTexturedBlockMaterial() {
 			if (texturedBlockMaterial == null) {
 				Material mat = new Material(_assetManager, "BlockTex2.j3md");
@@ -170,5 +171,4 @@ public class VoxelWorld extends SimpleApplication {
 			return texturedBlockMaterial;
 		}
 	}
-	
 }
