@@ -6,6 +6,7 @@ import com.jme3.input.controls.*;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
 import com.jme3.scene.*;
+import com.jme3.scene.control.CameraControl.ControlDirection;
 
 public class MainPlayer extends BetterCharacterControl implements Player, ActionListener {
 	private final Camera camera;
@@ -14,12 +15,18 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 	private float frontSpeed = 2;
 	private float backSpeed = .5f;
 
-	public MainPlayer(Camera camera) {
+	public MainPlayer(Camera camera, Node rootNode) {
 		super(.5f, 1.8f, 1f);
-		setSpatial(new Node("MainPlayer"));
+		Node playerNode = new Node("Main Player");
+		rootNode.attachChild(playerNode);
+		playerNode.addControl(this);
+		
 		setGravity(new Vector3f(0,1,0));
-		setPhysicsLocation(new Vector3f(0,100,0));
-		camera.setLocation(getLocation());
+		setPhysicsLocation(new Vector3f(0,50,0));
+		
+		CameraNode cameraNode = new CameraNode("Main Player camera", camera);
+		cameraNode.setControlDir(ControlDirection.SpatialToCamera);
+		playerNode.attachChild(cameraNode);
 		this.camera = camera;
 	}
 
@@ -38,13 +45,11 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
 		Vector3f walkDirection = new Vector3f(0,0,0);
-		switch(name) {
-		case "Left": walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
-		case "Right": walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
-		case "Up": walkDirection.addLocal(camera.getDirection().mult(frontSpeed));
-		case "Down": walkDirection.addLocal(camera.getDirection().mult(-backSpeed));
-		case "Jump": super.jump();
-		}
+		if(name.equals("Left")) walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
+		if(name.equals("Right")) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
+		if(name.equals("Up")) walkDirection.addLocal(camera.getDirection().mult(frontSpeed));
+		if(name.equals("Down")) walkDirection.addLocal(camera.getDirection().mult(-backSpeed));
 		setWalkDirection(walkDirection);
+		if(name.equals("Jump")) super.jump();
 	}
 }

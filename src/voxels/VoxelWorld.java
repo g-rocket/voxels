@@ -78,7 +78,8 @@ public class VoxelWorld extends SimpleApplication {
 	public void simpleInitApp() {
 		viewPort.setBackgroundColor(ColorRGBA.Blue);
 		materialLibrarian = new MaterialLibrarian(assetManager);
-		setUpTheCam();
+		//setUpTheCam();
+		flyCam.setEnabled(false);
 		String worldFile = System.getProperty("user.home")
 						 + System.getProperty("file.separator") 
 						 + "voxelWorld"
@@ -86,7 +87,7 @@ public class VoxelWorld extends SimpleApplication {
 						 + new Random().nextLong() + ".voxelworld";
 		world = new World(getStateManager(), rootNode,
 				materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-		MainPlayer mainPlayer = new MainPlayer(cam);
+		MainPlayer mainPlayer = new MainPlayer(cam, rootNode);
 		setUpKeys(mainPlayer);
 		world.addPlayer(mainPlayer);
 		// world.addPlayer(new FakePlayer(cam));

@@ -9,6 +9,7 @@ import voxels.map.*;
 
 import com.jme3.app.state.*;
 import com.jme3.bullet.*;
+import com.jme3.bullet.collision.*;
 import com.jme3.bullet.control.*;
 import com.jme3.material.*;
 import com.jme3.scene.*;
@@ -49,6 +50,9 @@ public class World {
 		}
 		if(player instanceof PhysicsTickListener) {
 			physics.getPhysicsSpace().addTickListener((PhysicsTickListener)player);
+		}
+		if(player instanceof PhysicsCollisionObject) {
+			physics.getPhysicsSpace().addCollisionObject((PhysicsCollisionObject)player);
 		}
 	}
 }
