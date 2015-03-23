@@ -11,6 +11,7 @@ import com.jme3.app.state.*;
 import com.jme3.bullet.*;
 import com.jme3.bullet.collision.*;
 import com.jme3.bullet.control.*;
+import com.jme3.bullet.util.*;
 import com.jme3.material.*;
 import com.jme3.scene.*;
 
@@ -26,19 +27,30 @@ public class World {
     }
 	
 	public World(AppStateManager parentASM, Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor) {
-		this.map = new WorldMap(worldNode, blockMaterial, saveFile, renderThreadExecutor, () -> {
-			return new AbstractList<Coord3>() {
-				@Override
-				public Coord3 get(int index) {
-					return new Coord3(players.get(index).getLocation());
-				}
-
-				@Override
-				public int size() {
-					return players.size();
-				}
-			};
-		});
+		this.map = new WorldMap(
+			(g) -> {
+				worldNode.attachChild(g);
+			}, (g) -> {
+				physics.getPhysicsSpace().addCollisionObject(new RigidBodyControl(CollisionShapeFactory.createMeshShape(g), 0));
+			}, (c) -> {
+				c.setEnabled(false);
+				c.getSpatial().removeFromParent();
+			}, () -> {
+				worldNode.removeFromParent();
+			}, blockMaterial, saveFile, renderThreadExecutor, () -> {
+				return new AbstractList<Coord3>() {
+					@Override
+					public Coord3 get(int index) {
+						return new Coord3(players.get(index).getLocation());
+					}
+					
+					@Override
+					public int size() {
+						return players.size();
+					}
+				};
+			}
+		);
 		physics = new BulletAppState();
 		parentASM.attach(physics);
 	}

@@ -114,6 +114,7 @@ public class Chunk extends AbstractControl {
         	world.renderExec.execute(() -> {
         		MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
         		getGeometry().updateModelBound();
+        		world.meshUpdateCallback.accept(getGeometry());
         	});
         }
 	}

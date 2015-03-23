@@ -21,6 +21,7 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 		rootNode.attachChild(playerNode);
 		playerNode.addControl(this);
 		
+		setJumpForce(new Vector3f(0, 3, 0));
 		setGravity(new Vector3f(0,1,0));
 		setPhysicsLocation(new Vector3f(0,50,0));
 		
@@ -45,11 +46,11 @@ public class MainPlayer extends BetterCharacterControl implements Player, Action
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
 		Vector3f walkDirection = new Vector3f(0,0,0);
-		if(name.equals("Left")) walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
-		if(name.equals("Right")) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
-		if(name.equals("Up")) walkDirection.addLocal(camera.getDirection().mult(frontSpeed));
-		if(name.equals("Down")) walkDirection.addLocal(camera.getDirection().mult(-backSpeed));
+		if(name.equals("Left")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
+		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
+		if(name.equals("Up")) if(isPressed) walkDirection.addLocal(camera.getDirection().mult(frontSpeed));
+		if(name.equals("Down")) if(isPressed) walkDirection.addLocal(camera.getDirection().mult(-backSpeed));
 		setWalkDirection(walkDirection);
-		if(name.equals("Jump")) super.jump();
+		if(name.equals("Jump")) if(isPressed) super.jump();
 	}
 }

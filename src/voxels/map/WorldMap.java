@@ -13,6 +13,7 @@ import voxels.generate.*;
 
 import com.jme3.material.*;
 import com.jme3.scene.*;
+import com.jme3.scene.control.*;
 
 /**
  * Deals with the overarching structure (knows about ALL the chunks)
@@ -20,7 +21,6 @@ import com.jme3.scene.*;
 public class WorldMap {
 	public final Coord3 chunkSize;
 	private HashMap<Coord3, Chunk> map = new HashMap<Coord3, Chunk>();
-	private final Node worldNode;
 	public final Material blockMaterial;
 	public final TerrainGenerator terrainGenerator;
 	private final Path savePath;
@@ -31,6 +31,10 @@ public class WorldMap {
 	public final Supplier<List<Coord3>> playersLocations;
 	public final Coord3 unloadDistance;
 	public final Coord3 loadDistance;
+	private final Consumer<Geometry> chunkLoadCallback;
+	private final Consumer<AbstractControl> chunkUnloadCallback;
+	public final Consumer<Geometry> meshUpdateCallback;
+	private final Runnable worldUnloadCallback;
 	
 	public class GeneratorExecutor {
 		private Map<Coord3, ChunkGenerationProcess> queuedProcesses = new HashMap<>();
@@ -131,7 +135,8 @@ public class WorldMap {
 		}
 	}
 	
-	public WorldMap(Node worldNode, Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
+	public WorldMap(Consumer<Geometry> chunkLoadCallback, Consumer<Geometry> meshUpdateCallback, Consumer<AbstractControl> chunkUnloadCallback, Runnable worldUnloadCallback, 
+			Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
 		this.savePath = Paths.get(saveFile.toURI());
 		try {
 			//FileSystems.newFileSystem(savePath, this.getClass().getClassLoader());
@@ -169,7 +174,10 @@ public class WorldMap {
 			loadDistance = new Coord3(2,2,1);
 			terrainGenerator = new TerrainGenerator();
 		}
-		this.worldNode = worldNode;
+		this.chunkLoadCallback = chunkLoadCallback;
+		this.meshUpdateCallback = meshUpdateCallback;
+		this.chunkUnloadCallback = chunkUnloadCallback;
+		this.worldUnloadCallback = worldUnloadCallback;
 		this.blockMaterial = blockMaterial;
 		this.renderExec = renderThreadExecutor;
 		this.playersLocations = playersLocations;
@@ -286,7 +294,7 @@ public class WorldMap {
 			throw new RuntimeException(e);
 		}
 		
-		worldNode.removeFromParent();
+		worldUnloadCallback.run();
 	}
 	
 	public void loadChunk(Coord3 chunkPos) {
@@ -307,8 +315,9 @@ public class WorldMap {
 			return;
 		}
 		renderExec.execute(() -> {
-			c.setEnabled(false);
-			c.getSpatial().removeFromParent();
+			chunkUnloadCallback.accept(c);
+			//c.setEnabled(false);
+			//c.getSpatial().removeFromParent();
 		});
 		try {
 			Path chunkSave = savePath.resolve(c.globalPosition.toString());
@@ -334,7 +343,7 @@ public class WorldMap {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator, new ByteArrayInputStream(Files.readAllBytes(chunkSave)));
 		renderExec.execute(() -> {
 			map.put(chunkPos, c);
-			worldNode.attachChild(c.getGeometry());
+			chunkLoadCallback.accept(c.getGeometry());
 		});
 		return c;
 	}
@@ -343,7 +352,7 @@ public class WorldMap {
 		Chunk c = new Chunk(chunkPos, this, terrainGenerator);
 		renderExec.execute(() -> {
 			map.put(chunkPos, c);
-			worldNode.attachChild(c.getGeometry());
+			chunkLoadCallback.accept(c.getGeometry());
 		});
 		return c;
 	}
