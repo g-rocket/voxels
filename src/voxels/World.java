@@ -11,12 +11,11 @@ import com.jme3.app.state.*;
 import com.jme3.bullet.*;
 import com.jme3.bullet.collision.*;
 import com.jme3.bullet.control.*;
-import com.jme3.bullet.util.*;
 import com.jme3.material.*;
 import com.jme3.scene.*;
 
 public class World {
-	private final WorldMap map;
+	public final WorldMap map;
 	private final BulletAppState physics;
 	private List<Player> players = new ArrayList<>();
 
@@ -31,7 +30,7 @@ public class World {
 			(g) -> {
 				worldNode.attachChild(g);
 			}, (g) -> {
-				physics.getPhysicsSpace().addCollisionObject(new RigidBodyControl(CollisionShapeFactory.createMeshShape(g), 0));
+				//physics.getPhysicsSpace().addCollisionObject(new RigidBodyControl(CollisionShapeFactory.createMeshShape(g), 0));
 			}, (c) -> {
 				c.setEnabled(false);
 				c.getSpatial().removeFromParent();

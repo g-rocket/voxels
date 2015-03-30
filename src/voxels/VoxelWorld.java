@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import voxels.entity.*;
+import voxels.map.*;
 
 import com.jme3.app.*;
 import com.jme3.asset.*;
@@ -78,8 +79,10 @@ public class VoxelWorld extends SimpleApplication {
 	public void simpleInitApp() {
 		viewPort.setBackgroundColor(ColorRGBA.Blue);
 		materialLibrarian = new MaterialLibrarian(assetManager);
-		//setUpTheCam();
-		flyCam.setEnabled(false);
+		setUpTheCam();
+		//flyCam.setEnabled(false);
+		flyCam.setUpVector(new Vector3f(0,0,1));
+		cam.setAxes(new Vector3f(0,1,0), new Vector3f(0,0,1), new Vector3f(1,0,0));
 		String worldFile = System.getProperty("user.home")
 						 + System.getProperty("file.separator") 
 						 + "voxelWorld"
@@ -87,11 +90,11 @@ public class VoxelWorld extends SimpleApplication {
 						 + new Random().nextLong() + ".voxelworld";
 		world = new World(getStateManager(), rootNode,
 				materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-		MainPlayer mainPlayer = new MainPlayer(cam, rootNode);
-		setUpKeys(mainPlayer);
-		world.addPlayer(mainPlayer);
-		// world.addPlayer(new FakePlayer(cam));
-		// cam.setLocation(new Coord3(0,0,0).asVector());
+		//MainPlayer mainPlayer = new MainPlayer(cam, rootNode, world.map);
+		//setUpKeys(mainPlayer);
+		//world.addPlayer(mainPlayer);
+		world.addPlayer(new FakePlayer(cam));
+		cam.setLocation(new Coord3(0,0,0).asVector());
 	}
 	
 	private void setUpKeys(InputListener player) {

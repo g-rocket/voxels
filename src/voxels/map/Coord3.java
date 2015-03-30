@@ -1,7 +1,5 @@
 package voxels.map;
 
-import java.util.*;
-
 import com.jme3.math.*;
 
 public class Coord3 {
@@ -14,13 +12,13 @@ public class Coord3 {
 	}
 	
 	public Coord3(Vector3f vec) {
-		this.x = (int)vec.x;
-		this.y = (int)vec.z;
-		this.z = (int)vec.y;
+		this.x = (int)Math.floor(vec.x);
+		this.y = (int)Math.floor(vec.y);
+		this.z = (int)Math.floor(vec.z);
 	}
 	
 	public Vector3f asVector() {
-		return new Vector3f(x,z,y);
+		return new Vector3f(x,y,z);
 	}
 	
 	public Coord3 plus(Coord3 c) {

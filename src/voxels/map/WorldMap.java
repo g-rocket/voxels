@@ -85,7 +85,9 @@ public class WorldMap {
 						}
 					}
 					if(process != null) process.run();
-					queuedProcesses.remove(processKey);
+					synchronized (GeneratorExecutor.this) {
+						queuedProcesses.remove(processKey);
+					}
 					if(stopping) {
 						synchronized (threads) {
 							threads.remove(this);
