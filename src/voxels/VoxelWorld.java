@@ -79,10 +79,6 @@ public class VoxelWorld extends SimpleApplication {
 	public void simpleInitApp() {
 		viewPort.setBackgroundColor(ColorRGBA.Blue);
 		materialLibrarian = new MaterialLibrarian(assetManager);
-		setUpTheCam();
-		//flyCam.setEnabled(false);
-		flyCam.setUpVector(new Vector3f(0,0,1));
-		cam.setAxes(new Vector3f(0,1,0), new Vector3f(0,0,1), new Vector3f(1,0,0));
 		String worldFile = System.getProperty("user.home")
 						 + System.getProperty("file.separator") 
 						 + "voxelWorld"
@@ -90,11 +86,11 @@ public class VoxelWorld extends SimpleApplication {
 						 + new Random().nextLong() + ".voxelworld";
 		world = new World(getStateManager(), rootNode,
 				materialLibrarian.getTexturedBlockMaterial(), new File(worldFile), renderThreadExecutor);
-		//MainPlayer mainPlayer = new MainPlayer(cam, rootNode, world.map);
-		//setUpKeys(mainPlayer);
-		//world.addPlayer(mainPlayer);
-		world.addPlayer(new FakePlayer(cam));
-		cam.setLocation(new Coord3(0,0,0).asVector());
+		MainPlayer mainPlayer = new MainPlayer(cam, rootNode, world.map);
+		setUpKeys(mainPlayer);
+		world.addPlayer(mainPlayer);
+		//setUpTheCam();
+		//world.addPlayer(new FakePlayer(cam));
 	}
 	
 	private void setUpKeys(InputListener player) {
@@ -137,6 +133,9 @@ public class VoxelWorld extends SimpleApplication {
 	
 	private void setUpTheCam() {
 		flyCam.setMoveSpeed(30);
+		flyCam.setUpVector(new Vector3f(0,0,1));
+		cam.setAxes(new Vector3f(0,1,0), new Vector3f(0,0,1), new Vector3f(1,0,0));
+		cam.setLocation(new Coord3(0,0,0).asVector());
 	}
 	
 	public static void main(String[] args) {

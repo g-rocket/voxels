@@ -137,6 +137,17 @@ public class WorldMap {
 		}
 	}
 	
+	/**
+	 * Create the world
+	 * @param chunkLoadCallback A callback for when a chunk is loaded. This should add it to the world mesh.
+	 * @param meshUpdateCallback A callback for when a chunk's mesh is updated. 
+	 * @param chunkUnloadCallback A callback for when a chunk is unloaded. 
+	 * @param worldUnloadCallback A callback for when the whole world is being unloaded. 
+	 * @param blockMaterial The material that blocks should use
+	 * @param saveFile Where to save the world
+	 * @param renderThreadExecutor An {@link Executor} that runs things on the render thread
+	 * @param playersLocations This should supply a list of where all the players are
+	 */
 	public WorldMap(Consumer<Geometry> chunkLoadCallback, Consumer<Geometry> meshUpdateCallback, Consumer<AbstractControl> chunkUnloadCallback, Runnable worldUnloadCallback, 
 			Material blockMaterial, File saveFile, Executor renderThreadExecutor, Supplier<List<Coord3>> playersLocations) {
 		this.savePath = Paths.get(saveFile.toURI());

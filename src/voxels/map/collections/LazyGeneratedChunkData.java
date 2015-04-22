@@ -8,7 +8,7 @@ import voxels.map.*;
 import voxels.util.*;
 
 public class LazyGeneratedChunkData implements ChunkData {
-	private final ByteArray3D data;
+	private final ChunkData data;
 	private final Coord3 size;
 	private final Coord3 position;
 	private final TerrainGenerator generator;

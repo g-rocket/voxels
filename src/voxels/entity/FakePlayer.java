@@ -3,10 +3,11 @@ package voxels.entity;
 import com.jme3.math.*;
 import com.jme3.renderer.*;
 
-public class FakePlayer implements Player{
+public class FakePlayer extends AbstractEntity implements Player{
 	private Camera camera;
 	
 	public FakePlayer(Camera camera) {
+		super(0,0,0);
 		this.camera = camera;
 	}
 	
