@@ -23,7 +23,7 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 		Node playerNode = new Node("Main Player");
 		rootNode.attachChild(playerNode);
 		
-		setLocation(new Vector3f(0,0,50));
+		setLocation(new Vector3f(.5f,.5f,50.5f));
 		
 		
 		CameraNode cameraNode = new CameraNode("Main Player camera", camera);
@@ -44,7 +44,7 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
 		if(name.equals("Up")) if(isPressed) walkDirection.addLocal(camera.getDirection().setZ(0).mult(frontSpeed));
 		if(name.equals("Down")) if(isPressed) walkDirection.addLocal(camera.getDirection().setZ(0).mult(-backSpeed));
-		setWalkDirection(walkDirection);
-		if(name.equals("Jump")) if(isPressed) super.jump();
+		//setWalkDirection(walkDirection);
+		//if(name.equals("Jump")) if(isPressed) super.jump();
 	}
 }
