@@ -8,6 +8,7 @@ import voxels.block.texture.*;
 import voxels.entity.*;
 import voxels.map.*;
 
+import com.google.auto.value.*;
 import com.jme3.app.state.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
@@ -34,7 +35,10 @@ public class World {
 		Vector3f force = new Vector3f();
 		for(Entity e: entities) {
 			force.set(0,0,0);
-			if(!onGround(e)) force.addLocal(gravity);
+			if(!onGround(e)) {
+				force.addLocal(gravity);
+				e.setAtBlockSurfaceHeight(false);
+			}
 			// add any other relevant forces
 			e.applyForce(force);
 			
@@ -43,11 +47,14 @@ public class World {
 			Coord3 newBlock = new Coord3(newLoc);
 			
 			if(map.getBlock(newBlock).isSolid) {
-				System.out.println("collided with "+newBlock);
 				//TODO: what if we moved through a block?
-				Vector3f intersectionWithBlock = getIntersection(e.getLocation(), velocity, new Coord3(newLoc));
-				if(intersectionWithBlock != null) newLoc = intersectionWithBlock;
-				//TODO: zero velocity in the direction we hit
+				FaceIntersectionPoint intersectionWithBlock = getIntersectionWithBlock(e.getLocation(), velocity, newLoc.clone());
+				System.out.println("collided with "+newBlock+" at "+intersectionWithBlock);
+				if(intersectionWithBlock != null) {
+					newLoc = intersectionWithBlock.intersectionPoint();
+					//TODO: zero velocity in the direction we hit
+					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setAtBlockSurfaceHeight(true);
+				}
 			}
 			
 			e.setLocation(newLoc);
@@ -56,11 +63,14 @@ public class World {
 	}
 	
 	private boolean onGround(Entity e) {
-		if(e.getLocation().getZ() != (int)e.getLocation().getZ()) return false;
+		if(!e.atBlockSurfaceHeight()) return false;
 		return map.getBlock(new Coord3(e.getLocation().subtract(0, 0, 1))).isSolid;
 	}
 	
-	private Vector3f getIntersection(Vector3f origin, Vector3f vector, Coord3 block) {
+	private FaceIntersectionPoint getIntersectionWithBlock(Vector3f origin, Vector3f vector, Vector3f block) {
+		block.x = (float)Math.floor(block.x);
+		block.y = (float)Math.floor(block.y);
+		block.z = (float)Math.floor(block.z);
 		Direction[] facesToCheck = new Direction[3];
 		int i = 0;
 		if(vector.x < 0) {
@@ -80,19 +90,34 @@ public class World {
 		}
 		for(Direction face: facesToCheck) {
 			if(face == null) return null;
-			Vector3f intersectionWithFace = getIntersection(origin, vector, block.asVector(), face);
-			if(intersectionWithFace != null) return intersectionWithFace;
+			Vector3f intersectionWithFace = getIntersectionWithFace(origin, vector, block, face);
+			if(intersectionWithFace != null) return FaceIntersectionPoint.create(face, intersectionWithFace);
 		}
 		return null;
 	}
 	
-	private Vector3f getIntersection(Vector3f origin, Vector3f vector, Vector3f block, Direction face) {
+	@AutoValue
+	abstract static class FaceIntersectionPoint {
+		public abstract Direction face();
+		public abstract Vector3f intersectionPoint();
+		public static FaceIntersectionPoint create(Direction face, Vector3f intersectionPoint) {
+			return new AutoValue_World_FaceIntersectionPoint(face, intersectionPoint);
+		}
+	}
+	
+	private Vector3f getIntersectionWithFace(Vector3f origin, Vector3f vector, Vector3f block, Direction face) {
+		System.out.printf("colliding with %s\n", block);
+		System.out.printf("face at %s\n", block.add(face.offset));
+		System.out.printf("origin at %s\n", origin);
 		origin = origin.subtract(block.add(face.offset));
+		System.out.printf("origin translated to %s\n", origin);
 		
-		Vector3f retval = origin.add(vector.mult(face.getRotX(origin.toArray(null)) / face.getRotX(vector.toArray(null))));
+		Vector3f retval = origin.subtract(vector.mult(face.getPrimaryComponent(origin) / face.getPrimaryComponent(vector)));
 		
-		if(face.getRotY(retval.toArray(null)) >= 1 || face.getRotZ(retval.toArray(null)) >= 1 ||
-		   face.getRotY(retval.toArray(null)) <  0 || face.getRotZ(retval.toArray(null)) <  0) {
+		Vector2f faceIntersectLocation = face.getSecondaryComponents(retval);
+		System.out.printf("collided at %s, %.3f\n", faceIntersectLocation, face.getPrimaryComponent(retval));
+		if(faceIntersectLocation.x >= 1 || faceIntersectLocation.y >= 1 ||
+		   faceIntersectLocation.x <  0 || faceIntersectLocation.y <  0) {
 			return null;
 		}
 		

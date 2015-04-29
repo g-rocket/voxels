@@ -20,18 +20,16 @@ public enum Direction {
 	
 	public final Vector3f offset;
 	
-	private final int order;
-	private final int invOrder;
+	private final int primaryComponentIndex;
 	
-	private Direction(int order, int dx, int dy, int dz, int... cornerdirs) {
+	private Direction(int primaryComponentIndex, int dx, int dy, int dz, int... cornerdirs) {
 		this.dx = dx;
 		this.dy = dy;
 		this.dz = dz;
 		
 		offset = new Vector3f(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0));
 		
-		this.order = order;
-		this.invOrder = (3-order) % 3;
+		this.primaryComponentIndex = primaryComponentIndex;
 		
 		this.c3 = new Coord3(dx, dy, dz);
 		
@@ -40,56 +38,39 @@ public enum Direction {
 		}
 	}
 	
-	public float getRotX(float... xyz) {
-		return xyz[order];
+	public float getPrimaryComponent(Vector3f vector) {
+		return getForIndex(vector, primaryComponentIndex);
 	}
 	
-	public float getRotY(float... xyz) {
-		return xyz[(order+1) % 3];
+	public Vector2f getSecondaryComponents(Vector3f vector) {
+		return new Vector2f(getForIndex(vector, (primaryComponentIndex+1) % 3), getForIndex(vector, (primaryComponentIndex+2) % 3));
 	}
 	
-	public float getRotZ(float... xyz) {
-		return xyz[(order+2) % 3];
+	public void setPrimaryComponent(Vector3f vector, float component) {
+		setForIndex(vector, component, primaryComponentIndex);
 	}
 	
-	public Vector3f rot(Vector3f in) {
-		float[] xyz = in.toArray(new float[3]);
-		return new Vector3f(getRotX(xyz), getRotY(xyz), getRotZ(xyz));
+	public void getSecondaryComponents(Vector3f vector, Vector2f components) {
+		setForIndex(vector, components.x, (primaryComponentIndex+1) % 3);
+		setForIndex(vector, components.y, (primaryComponentIndex+2) % 3);
 	}
 	
-	public Vector3f rotLocal(Vector3f in) {
-		float[] xyz = in.toArray(new float[3]);
-		return in.set(getRotX(xyz), getRotY(xyz), getRotZ(xyz));
+	private float getForIndex(Vector3f vector, int index) {
+		switch(index) {
+		case 0: return vector.x;
+		case 1: return vector.y;
+		case 2: return vector.z;
+		default: throw new IllegalArgumentException("Invalid index: "+index);
+		}
 	}
 	
-	public float getUnrotX(float... xyz) {
-		return xyz[invOrder];
-	}
-	
-	public float getUnrotY(float... xyz) {
-		return xyz[(invOrder+1) % 3];
-	}
-	
-	public float getUnrotZ(float... xyz) {
-		return xyz[(invOrder+2) % 3];
-	}
-	
-	public Vector3f unrot(Vector3f in) {
-		float[] xyz = in.toArray(new float[3]);
-		return new Vector3f(getUnrotX(xyz), getUnrotY(xyz), getUnrotZ(xyz));
-	}
-	
-	public Vector3f unrotLocal(Vector3f in) {
-		float[] xyz = in.toArray(new float[3]);
-		return in.set(getUnrotX(xyz), getUnrotY(xyz), getUnrotZ(xyz));
-	}
-	
-	public float getPrimary(float... xyz) {
-		return xyz[order];
-	}
-	
-	public float getPrimary(Vector3f in) {
-		return in.toArray(new float[3])[order];
+	private void setForIndex(Vector3f vector, float value, int index) {
+		switch(index) {
+		case 0: vector.x = value; return;
+		case 1: vector.y = value; return;
+		case 2: vector.z = value; return;
+		default: throw new IllegalArgumentException("Invalid index: "+index);
+		}
 	}
 	
 	public Vector3f[] getCorners(Coord3 center) {

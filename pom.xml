@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.clonecomputers.gavin</groupId>
   <artifactId>voxels</artifactId>
@@ -10,38 +11,38 @@
     <tag>HEAD</tag>
     <url>https://github.com/g-rocket/voxels</url>
   </scm>
-  
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  
+
   <repositories>
-  	<repository>
-        <id>jmonkey</id>
-        <url>http://updates.jmonkeyengine.org/maven/</url>
-        <releases>
-           <enabled>true</enabled>
-        </releases>
-        <snapshots>
-          <enabled>false</enabled>
-        </snapshots>        
-     </repository>
-     <repository>
-        <id>project-contained-repo</id>
-        <url>file://${basedir}/lib</url>
-        <releases>
-           <enabled>true</enabled>
-        </releases>
-        <snapshots>
-          <enabled>false</enabled>
-        </snapshots>        
-     </repository>
+    <repository>
+      <id>jmonkey</id>
+      <url>http://updates.jmonkeyengine.org/maven/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>project-contained-repo</id>
+      <url>file://${basedir}/lib</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
-  
+
   <build>
     <sourceDirectory>src</sourceDirectory>
     <finalName>voxels</finalName>
-    <defaultGoal>clean compile assembly:single</defaultGoal>
+    <defaultGoal>package</defaultGoal>
     <resources>
       <resource>
         <directory>src</directory>
@@ -77,9 +78,12 @@
           <source>1.8</source>
           <target>1.8</target>
           <encoding>${project.build.sourceEncoding}</encoding>
+          <annotationProcessors>
+            <annotationProcessor>com.google.auto.value.processor.AutoValueProcessor</annotationProcessor>
+          </annotationProcessors>
         </configuration>
       </plugin>
-      
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -101,7 +105,7 @@
           </execution>
         </executions>
       </plugin>
-      
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
@@ -127,50 +131,49 @@
     </plugins>
   </build>
   <dependencies>
-  	<dependency>
-  		<groupId>com.sudoplay</groupId>
-  		<artifactId>joise</artifactId>
-  		<version>1.0.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.guava</groupId>
-  		<artifactId>guava</artifactId>
-  		<version>16.0.1</version>
-  	</dependency>
-  	<dependency>
-  	  <groupId>com.google.code.gson</groupId>
-  	  <artifactId>gson</artifactId>
-  	  <version>2.2.4</version>
-  	</dependency>
-  	<!-- <dependency>
-  	  <groupId>de.schlichtherle.truezip</groupId>
-  	  <artifactId>truezip-path</artifactId>
-  	  <version>7.7.7</version>
-  	</dependency>
-  	<dependency>
-  	  <groupId>de.schlichtherle.truezip</groupId>
-  	  <artifactId>truezip-driver-zip</artifactId>
-  	  <version>7.7.7</version>
-  	</dependency> -->
-  	<dependency>
-  		<groupId>com.jme3</groupId>
-  		<artifactId>jme3-core</artifactId>
-  		<version>3.0.10</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.jme3</groupId>
-  		<artifactId>jme3-desktop</artifactId>
-  		<version>3.0.10</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.jme3</groupId>
-  		<artifactId>jme3-lwjgl</artifactId>
-  		<version>3.0.10</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.jme3</groupId>
-  		<artifactId>jme3-jbullet</artifactId>
-  		<version>3.0.10</version>
-  	</dependency>
+    <dependency>
+      <groupId>com.sudoplay</groupId>
+      <artifactId>joise</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>16.0.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.4</version>
+    </dependency>
+    <!-- <dependency> <groupId>de.schlichtherle.truezip</groupId> <artifactId>truezip-path</artifactId> 
+      <version>7.7.7</version> </dependency> <dependency> <groupId>de.schlichtherle.truezip</groupId> 
+      <artifactId>truezip-driver-zip</artifactId> <version>7.7.7</version> </dependency> -->
+    <dependency>
+      <groupId>com.jme3</groupId>
+      <artifactId>jme3-core</artifactId>
+      <version>3.0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jme3</groupId>
+      <artifactId>jme3-desktop</artifactId>
+      <version>3.0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jme3</groupId>
+      <artifactId>jme3-lwjgl</artifactId>
+      <version>3.0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.jme3</groupId>
+      <artifactId>jme3-jbullet</artifactId>
+      <version>3.0.10</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto.value</groupId>
+      <artifactId>auto-value</artifactId>
+      <version>1.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

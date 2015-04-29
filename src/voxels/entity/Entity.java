@@ -15,6 +15,9 @@ public interface Entity {
 	public float getCollisionRadius();
 	public float getMass();
 	
+	public boolean atBlockSurfaceHeight();
+	public void setAtBlockSurfaceHeight(boolean atBlockSurfaceHeight);
+	
 	public default void applyForce(Vector3f force) {
 		setVelocity(force.mult(getMass()).addLocal(getVelocity()));
 	}
