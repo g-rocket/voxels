@@ -44,6 +44,7 @@ public class World {
 			
 			Vector3f velocity = e.getVelocity();
 			Vector3f newLoc = e.getNextLocation(dt);
+			System.out.println("at "+newLoc);
 			Coord3 newBlock = new Coord3(newLoc);
 			
 			if(map.getBlock(newBlock).isSolid) {
@@ -52,13 +53,13 @@ public class World {
 				System.out.println("collided with "+newBlock+" at "+intersectionWithBlock);
 				if(intersectionWithBlock != null) {
 					newLoc = intersectionWithBlock.intersectionPoint();
-					//TODO: zero velocity in the direction we hit
+					velocity.multLocal(intersectionWithBlock.face().seccondary);
+					e.setVelocity(velocity);
 					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setAtBlockSurfaceHeight(true);
 				}
 			}
 			
 			e.setLocation(newLoc);
-			System.out.println("at "+newLoc);
 		}
 	}
 	

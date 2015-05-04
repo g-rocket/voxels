@@ -16,6 +16,9 @@ public enum Direction {
 	
 	public final Coord3 c3;
 	
+	public final Vector3f primary;
+	public final Vector3f seccondary;
+	
 	private final Vector3f[] cornerOffsets = new Vector3f[4];
 	
 	public final Vector3f offset;
@@ -30,6 +33,11 @@ public enum Direction {
 		offset = new Vector3f(Math.max(dx, 0), Math.max(dy, 0), Math.max(dz, 0));
 		
 		this.primaryComponentIndex = primaryComponentIndex;
+		
+		int[] primary = new int[3];
+		primary[primaryComponentIndex] = 1;
+		this.primary = new Vector3f(primary[0], primary[1], primary[2]);
+		this.seccondary = new Vector3f(1-primary[0], 1-primary[1], 1-primary[2]);
 		
 		this.c3 = new Coord3(dx, dy, dz);
 		
