@@ -21,16 +21,18 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 	public MainPlayer(Camera camera, Node rootNode, WorldMap map) {
 		super(.5f, 1.8f, 1f);
 		
-		camera.setAxes(new Vector3f(0,1,0), new Vector3f(0,0,1), new Vector3f(1,0,0));
+		camera.setAxes(Vector3f.UNIT_Y, Vector3f.UNIT_Z, Vector3f.UNIT_X);
 		playerNode = new Node("Main Player");
 		rootNode.attachChild(playerNode);
 		
 		setLocation(new Vector3f(.5f,.5f,50.5f));
 		
 		CameraNode cameraNode = new CameraNode("Main Player camera", camera);
-		cameraNode.getLocalTransform().setTranslation(0,0,1);
-		cameraNode.setControlDir(ControlDirection.SpatialToCamera);
 		playerNode.attachChild(cameraNode);
+		cameraNode.getLocalTransform().setRotation(camera.getRotation());
+		//cameraNode.getLocalTransform().setTranslation(camera.getLocation());
+		cameraNode.setControlDir(ControlDirection.SpatialToCamera);
+		cameraNode.lookAt(playerNode.getLocalTranslation().add(3, 0, 1), Vector3f.UNIT_Z);
 		this.camera = camera;
 		this.map = map;
 	}
@@ -50,8 +52,8 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 		Vector3f walkDirection = new Vector3f(0,0,0);
 		if(name.equals("Left")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
 		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
-		if(name.equals("Up")) if(isPressed) walkDirection.addLocal(camera.getDirection().setZ(0).mult(frontSpeed));
-		if(name.equals("Down")) if(isPressed) walkDirection.addLocal(camera.getDirection().setZ(0).mult(-backSpeed));
+		if(name.equals("Forward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(frontSpeed));
+		if(name.equals("Backward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(-backSpeed));
 		velocity.addLocal(walkDirection);
 		if(name.equals("Jump")) if(isPressed) velocity.addLocal(new Vector3f(0,0,5));
 	}

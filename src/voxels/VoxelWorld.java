@@ -89,6 +89,7 @@ public class VoxelWorld extends SimpleApplication {
 		MainPlayer mainPlayer = new MainPlayer(cam, rootNode, world.map);
 		setUpKeys(mainPlayer);
 		world.addPlayer(mainPlayer);
+		flyCam.setEnabled(false);
 		//setUpTheCam();
 		//world.addPlayer(new FakePlayer(cam));
 	}
@@ -96,13 +97,13 @@ public class VoxelWorld extends SimpleApplication {
 	private void setUpKeys(InputListener player) {
 		inputManager.addMapping("Left", new KeyTrigger(KeyInput.KEY_A));
 		inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
-		inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
-		inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addMapping("Forward", new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addMapping("Backward", new KeyTrigger(KeyInput.KEY_S));
 		inputManager.addMapping("Jump", new KeyTrigger(KeyInput.KEY_SPACE));
 		inputManager.addListener(player, "Left");
 		inputManager.addListener(player, "Right");
-		inputManager.addListener(player, "Up");
-		inputManager.addListener(player, "Down");
+		inputManager.addListener(player, "Forward");
+		inputManager.addListener(player, "Backward");
 		inputManager.addListener(player, "Jump");
 	}
 	
