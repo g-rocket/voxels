@@ -13,6 +13,7 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 	private WorldMap map;
 	
 	private Node playerNode;
+	private final CameraNode cameraNode;
 
 	private float sideSpeed = 1;
 	private float frontSpeed = 2;
@@ -25,22 +26,25 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 		playerNode = new Node("Main Player");
 		rootNode.attachChild(playerNode);
 		
-		setLocation(new Vector3f(.5f,.5f,50.5f));
-		
-		CameraNode cameraNode = new CameraNode("Main Player camera", camera);
+		cameraNode = new CameraNode("Main Player camera", camera);
 		playerNode.attachChild(cameraNode);
 		cameraNode.getLocalTransform().setRotation(camera.getRotation());
 		//cameraNode.getLocalTransform().setTranslation(camera.getLocation());
 		cameraNode.setControlDir(ControlDirection.SpatialToCamera);
-		cameraNode.lookAt(playerNode.getLocalTranslation().add(3, 0, 1), Vector3f.UNIT_Z);
+		cameraNode.lookAt(playerNode.getLocalTranslation().add(1,0,0), Vector3f.UNIT_Z.clone());
 		this.camera = camera;
 		this.map = map;
+		
+		setLocation(new Vector3f(.5f,.5f,50.5f));
 	}
 	
 	@Override
 	public void setLocation(Vector3f location) {
 		super.setLocation(location);
 		playerNode.getLocalTransform().setTranslation(location);
+		cameraNode.getWorldTransform().setTranslation(location);
+		System.out.printf("Camera transform:\n%s\n",cameraNode.getLocalTransform());
+		System.out.printf("Camera global transform:\n%s\n", cameraNode.getWorldTransform());
 	}
 	
 	public void setMap(WorldMap map) {
