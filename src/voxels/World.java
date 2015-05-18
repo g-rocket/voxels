@@ -90,7 +90,9 @@ public class World {
 			facesToCheck[i++] = Direction.ZNEG;
 		}
 		for(Direction face: facesToCheck) {
-			if(face == null) return null;
+			if(face == null) {
+				return null; // ran out of faces to check
+			}
 			Vector3f intersectionWithFace = getIntersectionWithFace(origin, vector, block, face);
 			if(intersectionWithFace != null) return FaceIntersectionPoint.create(face, intersectionWithFace);
 		}
@@ -107,26 +109,33 @@ public class World {
 	}
 	
 	private Vector3f getIntersectionWithFace(Vector3f origin, Vector3f vector, Vector3f block, Direction face) {
-		System.out.printf("colliding with %s\n", block);
+		System.out.printf("colliding with %s on the %s face\n", block, face);
 		System.out.printf("face at %s\n", block.add(face.offset));
 		System.out.printf("origin at %s\n", origin);
-		origin = origin.subtract(block.add(face.offset));
-		System.out.printf("origin translated to %s\n", origin);
+		Vector3f translatedOrigin = origin.subtract(block.add(face.offset));
+		System.out.printf("origin translated to %s\n", translatedOrigin);
 		
-		Vector3f retval = origin.subtract(vector.mult(face.getPrimaryComponent(origin) / face.getPrimaryComponent(vector)));
+		Vector3f retval = translatedOrigin.subtract(vector.mult(face.getPrimaryComponent(translatedOrigin) / face.getPrimaryComponent(vector)));
 		
 		Vector2f faceIntersectLocation = face.getSecondaryComponents(retval);
 		System.out.printf("collided at %s, %.3f\n", faceIntersectLocation, face.getPrimaryComponent(retval));
 		if(faceIntersectLocation.x >= 1 || faceIntersectLocation.y >= 1 ||
 		   faceIntersectLocation.x <  0 || faceIntersectLocation.y <  0) {
+			System.out.println("didn't actually hit the face");
 			return null;
 		}
 		
 		retval.addLocal(block.add(face.offset));
+		System.out.printf("final collision locaion: %s\n", retval);
 		
-		float lengthSquared = origin.subtractLocal(retval).lengthSquared();
-		if(lengthSquared < 0 || lengthSquared > vector.lengthSquared()) return null;
+		float lengthSquared = origin.subtract(retval).lengthSquared();
+		System.out.printf("collided sqrt(%.5f) away from the origin; must be less that sqrt(%.5f)\n", lengthSquared, vector.lengthSquared());
+		if(lengthSquared < 0 || lengthSquared > vector.lengthSquared()) {
+			System.out.println("collision too far away");
+			return null;
+		}
 		
+		System.out.println("collision successful!");
 		return retval;
 	}
 
@@ -155,7 +164,7 @@ public class World {
 				};
 			}
 		);
-		gravity = new Vector3f(0,0,-1);
+		gravity = new Vector3f(0,0,-0.01f);
 	}
 
 	public void addPlayer(Player player) {
