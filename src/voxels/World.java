@@ -19,6 +19,9 @@ public class World {
 	private List<Player> players = new ArrayList<>();
 	private List<Entity> entities = new ArrayList<>();
 	private Vector3f gravity;
+	
+	private float xydamping = 0.2f;
+	private float zdamping = 0.8f;
 
     public void simpleUpdate(float secondsPerFrame) {
     	for(Player p: players) {
@@ -37,14 +40,22 @@ public class World {
 			force.set(0,0,0);
 			if(!onGround(e)) {
 				force.addLocal(gravity);
-				e.setAtBlockSurfaceHeight(false);
+				e.setOnGround(false);
 			}
+			force.addLocal(e.getCustomForces());
 			// add any other relevant forces
+			
 			e.applyForce(force);
 			
 			Vector3f velocity = e.getVelocity();
+			// damping
+			Vector3f damping = Direction.ZPOS.primary.mult(FastMath.pow(zdamping, dt)).addLocal(Direction.ZPOS.seccondary.mult(FastMath.pow(xydamping, dt)));
+			velocity.multLocal(damping);
+			e.setVelocity(velocity);
+			
+			
 			Vector3f newLoc = e.getNextLocation(dt);
-			System.out.println("at "+newLoc);
+			//System.out.println("at "+newLoc);
 			Coord3 newBlock = new Coord3(newLoc);
 			
 			if(map.getBlock(newBlock).isSolid) {
@@ -55,7 +66,7 @@ public class World {
 					newLoc = intersectionWithBlock.intersectionPoint();
 					velocity.multLocal(intersectionWithBlock.face().seccondary);
 					e.setVelocity(velocity);
-					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setAtBlockSurfaceHeight(true);
+					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setOnGround(true);
 				}
 			}
 			
@@ -64,7 +75,7 @@ public class World {
 	}
 	
 	private boolean onGround(Entity e) {
-		if(!e.atBlockSurfaceHeight()) return false;
+		if(!e.wasOnGround()) return false;
 		return map.getBlock(new Coord3(e.getLocation().subtract(0, 0, 1))).isSolid;
 	}
 	
@@ -112,10 +123,10 @@ public class World {
 		System.out.printf("colliding with %s on the %s face\n", block, face);
 		System.out.printf("face at %s\n", block.add(face.offset));
 		System.out.printf("origin at %s\n", origin);
-		Vector3f translatedOrigin = origin.subtract(block.add(face.offset));
-		System.out.printf("origin translated to %s\n", translatedOrigin);
+		origin = origin.subtract(block.add(face.offset));
+		System.out.printf("origin translated to %s\n", origin);
 		
-		Vector3f retval = translatedOrigin.subtract(vector.mult(face.getPrimaryComponent(translatedOrigin) / face.getPrimaryComponent(vector)));
+		Vector3f retval = origin.subtract(vector.mult(face.getPrimaryComponent(origin) / face.getPrimaryComponent(vector)));
 		
 		Vector2f faceIntersectLocation = face.getSecondaryComponents(retval);
 		System.out.printf("collided at %s, %.3f\n", faceIntersectLocation, face.getPrimaryComponent(retval));
@@ -125,15 +136,15 @@ public class World {
 			return null;
 		}
 		
-		retval.addLocal(block.add(face.offset));
-		System.out.printf("final collision locaion: %s\n", retval);
-		
 		float lengthSquared = origin.subtract(retval).lengthSquared();
 		System.out.printf("collided sqrt(%.5f) away from the origin; must be less that sqrt(%.5f)\n", lengthSquared, vector.lengthSquared());
 		if(lengthSquared < 0 || lengthSquared > vector.lengthSquared()) {
 			System.out.println("collision too far away");
 			return null;
 		}
+		
+		retval.addLocal(block.add(face.offset));
+		System.out.printf("final collision locaion: %s\n", retval);
 		
 		System.out.println("collision successful!");
 		return retval;

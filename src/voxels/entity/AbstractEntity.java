@@ -10,7 +10,7 @@ public abstract class AbstractEntity implements Entity {
 	protected float collisionRadius;
 	protected float mass;
 	
-	protected boolean atBlockSurfaceHeight;
+	protected boolean onGround;
 	
 	public AbstractEntity(float collisionHeight, float collisionRadius, float mass) {
 		this.collisionHeight = collisionHeight;
@@ -57,13 +57,13 @@ public abstract class AbstractEntity implements Entity {
 	}
 
 	@Override
-	public boolean atBlockSurfaceHeight() {
-		return atBlockSurfaceHeight;
+	public boolean wasOnGround() {
+		return onGround;
 	}
 
 	@Override
-	public void setAtBlockSurfaceHeight(boolean atBlockSurfaceHeight) {
-		this.atBlockSurfaceHeight = atBlockSurfaceHeight;
+	public void setOnGround(boolean onGround) {
+		this.onGround = onGround;
 	}
 
 }

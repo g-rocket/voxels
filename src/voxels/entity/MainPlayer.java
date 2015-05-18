@@ -15,9 +15,13 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 	private Node playerNode;
 	private final CameraNode cameraNode;
 
-	private float sideSpeed = 1;
-	private float frontSpeed = 2;
-	private float backSpeed = .5f;
+	private float sideForce = .02f;
+	private float frontForce = .04f;
+	private float backForce = .01f;
+	
+	private float flySpeedFactor = 0.5f;
+	
+	private Vector3f walkDirection = Vector3f.ZERO.clone();
 
 	public MainPlayer(Camera camera, Node rootNode, WorldMap map) {
 		super(.5f, 1.8f, 1f);
@@ -42,23 +46,28 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 	public void setLocation(Vector3f location) {
 		super.setLocation(location);
 		playerNode.getLocalTransform().setTranslation(location);
-		cameraNode.getWorldTransform().setTranslation(location);
-		System.out.printf("Camera transform:\n%s\n",cameraNode.getLocalTransform());
-		System.out.printf("Camera global transform:\n%s\n", cameraNode.getWorldTransform());
+		cameraNode.getWorldTransform().setTranslation(location.add(0,0,1));
+		//System.out.printf("Camera transform:\n%s\n",cameraNode.getLocalTransform());
+		//System.out.printf("Camera global transform:\n%s\n", cameraNode.getWorldTransform());
 	}
 	
 	public void setMap(WorldMap map) {
 		this.map = map;
 	}
+	
+	@Override
+	public Vector3f getCustomForces() {
+		return super.getCustomForces().add(walkDirection);
+	}
 
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
-		Vector3f walkDirection = new Vector3f(0,0,0);
-		if(name.equals("Left")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(sideSpeed));
-		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideSpeed));
-		if(name.equals("Forward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(frontSpeed));
-		if(name.equals("Backward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(-backSpeed));
-		velocity.addLocal(walkDirection);
-		if(name.equals("Jump")) if(isPressed) velocity.addLocal(new Vector3f(0,0,5));
+		walkDirection = Vector3f.ZERO.clone();
+		if(name.equals("Left")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(sideForce));
+		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideForce));
+		if(name.equals("Forward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(frontForce));
+		if(name.equals("Backward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(-backForce));
+		if(!wasOnGround()) walkDirection.multLocal(flySpeedFactor);
+		if(name.equals("Jump")) if(isPressed && wasOnGround()) velocity.addLocal(new Vector3f(0,0,5));
 	}
 }
