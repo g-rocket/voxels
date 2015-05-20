@@ -42,10 +42,13 @@ public class World {
 				force.addLocal(gravity);
 				e.setOnGround(false);
 			}
-			force.addLocal(e.getCustomForces());
+			//System.out.println("at "+e.getLocation()+" with velocity "+e.getVelocity()+" (onGround: "+e.wasOnGround()+")");
+			force.addLocal(e.getCustomForces(dt));
 			// add any other relevant forces
 			
-			e.applyForce(force);
+			if(force.z > 0) e.setOnGround(false);
+			
+			e.applyForce(force, dt);
 			
 			Vector3f velocity = e.getVelocity();
 			// damping
@@ -64,7 +67,9 @@ public class World {
 				System.out.println("collided with "+newBlock+" at "+intersectionWithBlock);
 				if(intersectionWithBlock != null) {
 					newLoc = intersectionWithBlock.intersectionPoint();
+					System.out.println("only keeping parts of velocity along"+intersectionWithBlock.face().seccondary);
 					velocity.multLocal(intersectionWithBlock.face().seccondary);
+					System.out.println("new velocity: "+velocity);
 					e.setVelocity(velocity);
 					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setOnGround(true);
 				}
@@ -175,7 +180,7 @@ public class World {
 				};
 			}
 		);
-		gravity = new Vector3f(0,0,-0.01f);
+		gravity = new Vector3f(0,0,-10f);
 	}
 
 	public void addPlayer(Player player) {

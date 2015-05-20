@@ -1,5 +1,7 @@
 package voxels.entity;
 
+import java.util.*;
+
 import voxels.map.*;
 
 import com.jme3.input.controls.*;
@@ -8,20 +10,20 @@ import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 
-public class MainPlayer extends AbstractEntity implements Player, ActionListener {
+public class MainPlayer extends AbstractEntity implements Player, ActionListener, AnalogListener {
 	private final Camera camera;
 	private WorldMap map;
 	
 	private Node playerNode;
 	private final CameraNode cameraNode;
 
-	private float sideForce = .02f;
-	private float frontForce = .04f;
-	private float backForce = .01f;
+	private float frontForce = 8f;
+	private float sideForce = 4f;
+	private float backForce = 2f;
 	
 	private float flySpeedFactor = 0.5f;
 	
-	private Vector3f walkDirection = Vector3f.ZERO.clone();
+	private Map<String,Boolean> actionsActive = new HashMap<>();
 
 	public MainPlayer(Camera camera, Node rootNode, WorldMap map) {
 		super(.5f, 1.8f, 1f);
@@ -56,18 +58,35 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 	}
 	
 	@Override
-	public Vector3f getCustomForces() {
-		return super.getCustomForces().add(walkDirection);
+	public Vector3f getCustomForces(float dt) {
+		Vector3f force = super.getCustomForces(dt);
+		if(actionsActive.containsKey("Left")) force.addLocal(camera.getLeft().mult(sideForce));
+		if(actionsActive.containsKey("Right")) force.addLocal(camera.getLeft().mult(-sideForce));
+		if(actionsActive.containsKey("Forward")) force.addLocal(camera.getDirection().clone().setZ(0).mult(frontForce));
+		if(actionsActive.containsKey("Backward")) force.addLocal(camera.getDirection().clone().setZ(0).mult(-backForce));
+		if(!wasOnGround()) force.multLocal(flySpeedFactor);
+
+		if(actionsActive.containsKey("Jump")){
+			if(wasOnGround()) {
+				System.out.print("j");
+				force.addLocal(new Vector3f(0,0,5f).divide(dt));
+			}
+		}
+		
+		return force;
 	}
 
 	@Override
 	public void onAction(String name, boolean isPressed, float tpf) {
-		walkDirection = Vector3f.ZERO.clone();
-		if(name.equals("Left")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(sideForce));
-		if(name.equals("Right")) if(isPressed) walkDirection.addLocal(camera.getLeft().mult(-sideForce));
-		if(name.equals("Forward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(frontForce));
-		if(name.equals("Backward")) if(isPressed) walkDirection.addLocal(camera.getDirection().clone().setZ(0).mult(-backForce));
-		if(!wasOnGround()) walkDirection.multLocal(flySpeedFactor);
-		if(name.equals("Jump")) if(isPressed && wasOnGround()) velocity.addLocal(new Vector3f(0,0,5));
+		if(isPressed) {
+			actionsActive.put(name,actionsActive.containsKey(name));
+		} else {
+			actionsActive.remove(name);
+		}
+	}
+
+	@Override
+	public void onAnalog(String name, float value, float tpf) {
+		
 	}
 }

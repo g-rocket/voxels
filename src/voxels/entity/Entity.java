@@ -18,12 +18,12 @@ public interface Entity {
 	public boolean wasOnGround();
 	public void setOnGround(boolean onGround);
 	
-	public default Vector3f getCustomForces() {
-		return Vector3f.ZERO;
+	public default Vector3f getCustomForces(float dt) {
+		return Vector3f.ZERO.clone();
 	}
 	
-	public default void applyForce(Vector3f force) {
-		setVelocity(force.mult(getMass()).addLocal(getVelocity()));
+	public default void applyForce(Vector3f force, float dt) {
+		setVelocity(force.mult(getMass()).multLocal(dt).addLocal(getVelocity()));
 	}
 	
 	public default Vector3f getNextLocation(float dt) {
