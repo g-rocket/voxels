@@ -39,7 +39,7 @@ public enum Direction {
 		primary[primaryComponentIndex] = 1;
 		this.primary = new Vector3f(primary[0], primary[1], primary[2]);
 		this.seccondary = new Vector3f(1-primary[0], 1-primary[1], 1-primary[2]);
-		sign = primary[0];
+		sign = (int)getPrimaryComponent(offset);
 		
 		this.c3 = new Coord3(dx, dy, dz);
 		
@@ -49,38 +49,20 @@ public enum Direction {
 	}
 	
 	public float getPrimaryComponent(Vector3f vector) {
-		return getForIndex(vector, primaryComponentIndex);
+		return vector.get(primaryComponentIndex);
 	}
 	
 	public Vector2f getSecondaryComponents(Vector3f vector) {
-		return new Vector2f(getForIndex(vector, (primaryComponentIndex+1) % 3), getForIndex(vector, (primaryComponentIndex+2) % 3));
+		return new Vector2f(vector.get((primaryComponentIndex+1) % 3), vector.get((primaryComponentIndex+2) % 3));
 	}
 	
 	public void setPrimaryComponent(Vector3f vector, float component) {
-		setForIndex(vector, component, primaryComponentIndex);
+		vector.set(primaryComponentIndex, component);
 	}
 	
 	public void getSecondaryComponents(Vector3f vector, Vector2f components) {
-		setForIndex(vector, components.x, (primaryComponentIndex+1) % 3);
-		setForIndex(vector, components.y, (primaryComponentIndex+2) % 3);
-	}
-	
-	private float getForIndex(Vector3f vector, int index) {
-		switch(index) {
-		case 0: return vector.x;
-		case 1: return vector.y;
-		case 2: return vector.z;
-		default: throw new IllegalArgumentException("Invalid index: "+index);
-		}
-	}
-	
-	private void setForIndex(Vector3f vector, float value, int index) {
-		switch(index) {
-		case 0: vector.x = value; return;
-		case 1: vector.y = value; return;
-		case 2: vector.z = value; return;
-		default: throw new IllegalArgumentException("Invalid index: "+index);
-		}
+		vector.set((primaryComponentIndex+1) % 3, components.x);
+		vector.set((primaryComponentIndex+2) % 3, components.y);
 	}
 	
 	public Vector3f[] getCorners(Coord3 center) {

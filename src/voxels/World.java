@@ -1,5 +1,7 @@
 package voxels;
 
+import static voxels.block.texture.Direction.*;
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -13,8 +15,6 @@ import com.jme3.app.state.*;
 import com.jme3.material.*;
 import com.jme3.math.*;
 import com.jme3.scene.*;
-
-import static voxels.block.texture.Direction.*;
 
 public class World {
 	public final WorldMap map;
@@ -82,11 +82,15 @@ public class World {
 		Vector3f force = Vector3f.ZERO.clone();
 		
 		// if we walked off a block into midair, we are no longer on a block
-		for(Direction d: Direction.values()) {
+		for(Direction surface: Direction.values()) {
 			//FIXME: the player is not a point
-			if(e.onSurface(d) && !map.getBlock(new Coord3(e.getLocation().subtract(d.primary.multLocal(.5f)))).isSolid) {
-				System.out.println("fell off "+d);
-				e.setOnSurface(d, false);
+			if(e.onSurface(surface) && !map.getBlock(new Coord3(e.getLocation().subtract(surface.offset.mult(.5f)))).isSolid) {
+				System.out.println(String.format("fell off %s (%s) into %s at %s (probed with %s)", surface,
+															surface.offset,
+						new Coord3(e.getLocation().subtract(surface.offset.mult(.5f))),
+								   e.getLocation().subtract(surface.offset.mult(.5f)),
+								   							surface.offset.mult(.5f)));
+				e.setOnSurface(surface, false);
 			}
 		}
 		
@@ -98,17 +102,17 @@ public class World {
 		
 		// if we move away from a block, we're not on it
 		for(Direction surface: Direction.values()) {
-			if(surface.getPrimaryComponent(force)*surface.sign > 0) {
+			Vector3f directionTowardsSurface = surface.offset.mult(force);
+			float motionTowardsSurface = directionTowardsSurface.x + directionTowardsSurface.y + directionTowardsSurface.z;
+			if(motionTowardsSurface > 0) {
+				// if we move away from a block, we're not on it
 				System.out.println("no longer on "+surface);
 				e.setOnSurface(surface, false);
+			} else if(motionTowardsSurface < 0 && e.onSurface(surface)) {
+				// don't move into a block
+				force.multLocal(surface.seccondary);
 			}
 		}
-		
-		// don't move into a block
-		for(Direction surface: e.onSurfaces()) {
-			if(surface.getPrimaryComponent(force)*surface.sign < 0) force.multLocal(surface.seccondary);
-		}
-		
 		return force;
 	}
 	
