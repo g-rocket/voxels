@@ -14,6 +14,8 @@ import com.jme3.material.*;
 import com.jme3.math.*;
 import com.jme3.scene.*;
 
+import static voxels.block.texture.Direction.*;
+
 public class World {
 	public final WorldMap map;
 	private List<Player> players = new ArrayList<>();
@@ -25,7 +27,7 @@ public class World {
 
     public void simpleUpdate(float secondsPerFrame) {
     	for(Player p: players) {
-    		map.loadChunksAroundCamera(p.getBlockLocation());
+    		map.loadChunksAroundCamera(new Coord3(p.getLocation()));
     	}
     	updatePhysics(secondsPerFrame);
     }
@@ -37,51 +39,82 @@ public class World {
 	private void updatePhysics(float dt) {
 		Vector3f force = new Vector3f();
 		for(Entity e: entities) {
-			force.set(0,0,0);
-			if(!onGround(e)) {
-				force.addLocal(gravity);
-				e.setOnGround(false);
-			}
-			//System.out.println("at "+e.getLocation()+" with velocity "+e.getVelocity()+" (onGround: "+e.wasOnGround()+")");
-			force.addLocal(e.getCustomForces(dt));
-			// add any other relevant forces
-			
-			if(force.z > 0) e.setOnGround(false);
-			
-			e.applyForce(force, dt);
-			
-			Vector3f velocity = e.getVelocity();
-			// damping
-			Vector3f damping = Direction.ZPOS.primary.mult(FastMath.pow(zdamping, dt)).addLocal(Direction.ZPOS.seccondary.mult(FastMath.pow(xydamping, dt)));
-			velocity.multLocal(damping);
-			e.setVelocity(velocity);
-			
+			e.applyForce(getForce(e, dt), dt);
+			e.setVelocity(dampVelocity(e.getVelocity(), dt));
 			
 			Vector3f newLoc = e.getNextLocation(dt);
-			//System.out.println("at "+newLoc);
-			Coord3 newBlock = new Coord3(newLoc);
 			
-			if(map.getBlock(newBlock).isSolid) {
-				//TODO: what if we moved through a block?
-				FaceIntersectionPoint intersectionWithBlock = getIntersectionWithBlock(e.getLocation(), velocity, newLoc.clone());
-				System.out.println("collided with "+newBlock+" at "+intersectionWithBlock);
-				if(intersectionWithBlock != null) {
-					newLoc = intersectionWithBlock.intersectionPoint();
-					System.out.println("only keeping parts of velocity along"+intersectionWithBlock.face().seccondary);
-					velocity.multLocal(intersectionWithBlock.face().seccondary);
-					System.out.println("new velocity: "+velocity);
-					e.setVelocity(velocity);
-					if(intersectionWithBlock.face().equals(Direction.ZPOS)) e.setOnGround(true);
-				}
+			Coord3[] collisions = getCollisions(e, e.getLocation(), newLoc);
+			
+			if(collisions.length > 0) {
+				newLoc = doCollisions(e, newLoc, collisions);
 			}
 			
 			e.setLocation(newLoc);
 		}
 	}
 	
-	private boolean onGround(Entity e) {
-		if(!e.wasOnGround()) return false;
-		return map.getBlock(new Coord3(e.getLocation().subtract(0, 0, 1))).isSolid;
+	private Coord3[] getCollisions(Entity e, Vector3f currentLocation, Vector3f nextLocation) {
+		//TODO: what if we moved through a block?
+		if(map.getBlock(new Coord3(nextLocation)).isSolid) {
+			return new Coord3[]{new Coord3(nextLocation)};
+		} else {
+			return new Coord3[0];
+		}
+	}
+	
+	private Vector3f doCollisions(Entity e, Vector3f nextLocation, Coord3[] collisions) {
+		Vector3f velocity = e.getVelocity();
+		FaceIntersectionPoint intersectionWithBlock = getIntersectionWithBlock(e.getLocation(), velocity, nextLocation.clone());
+		System.out.println("collided with "+new Coord3(nextLocation)+" at "+intersectionWithBlock);
+		if(intersectionWithBlock != null) {
+			nextLocation = intersectionWithBlock.intersectionPoint();
+			System.out.println("only keeping parts of velocity along"+intersectionWithBlock.face().seccondary);
+			velocity.multLocal(intersectionWithBlock.face().seccondary);
+			System.out.println("new velocity: "+velocity);
+			e.setVelocity(velocity);
+			e.setOnSurface(intersectionWithBlock.face(), true);
+		}
+		return nextLocation;
+	}
+	
+	private Vector3f getForce(Entity e, float dt) {
+		Vector3f force = Vector3f.ZERO.clone();
+		
+		// if we walked off a block into midair, we are no longer on a block
+		for(Direction d: Direction.values()) {
+			//FIXME: the player is not a point
+			if(e.onSurface(d) && !map.getBlock(new Coord3(e.getLocation().subtract(d.primary.multLocal(.5f)))).isSolid) {
+				System.out.println("fell off "+d);
+				e.setOnSurface(d, false);
+			}
+		}
+		
+		force.addLocal(gravity);
+		
+		force.addLocal(e.getCustomForces(dt));
+		
+		// add any other relevant forces
+		
+		// if we move away from a block, we're not on it
+		for(Direction surface: Direction.values()) {
+			if(surface.getPrimaryComponent(force)*surface.sign > 0) {
+				System.out.println("no longer on "+surface);
+				e.setOnSurface(surface, false);
+			}
+		}
+		
+		// don't move into a block
+		for(Direction surface: e.onSurfaces()) {
+			if(surface.getPrimaryComponent(force)*surface.sign < 0) force.multLocal(surface.seccondary);
+		}
+		
+		return force;
+	}
+	
+	private Vector3f dampVelocity(Vector3f velocity, float dt) {
+		Vector3f damping = ZPOS.primary.mult(FastMath.pow(zdamping, dt)).addLocal(ZPOS.seccondary.mult(FastMath.pow(xydamping, dt)));
+		return velocity.mult(damping);
 	}
 	
 	private FaceIntersectionPoint getIntersectionWithBlock(Vector3f origin, Vector3f vector, Vector3f block) {
