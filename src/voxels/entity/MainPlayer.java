@@ -2,6 +2,7 @@ package voxels.entity;
 
 import java.util.*;
 
+import voxels.block.texture.*;
 import voxels.map.*;
 
 import com.jme3.input.controls.*;
@@ -10,7 +11,7 @@ import com.jme3.renderer.*;
 import com.jme3.scene.*;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 
-public class MainPlayer extends AbstractEntity implements Player, ActionListener, AnalogListener {
+public class MainPlayer extends Player implements ActionListener, AnalogListener {
 	private final Camera camera;
 	private WorldMap map;
 	
@@ -64,10 +65,10 @@ public class MainPlayer extends AbstractEntity implements Player, ActionListener
 		if(actionsActive.containsKey("Right")) force.addLocal(camera.getLeft().mult(-sideForce));
 		if(actionsActive.containsKey("Forward")) force.addLocal(camera.getDirection().clone().setZ(0).mult(frontForce));
 		if(actionsActive.containsKey("Backward")) force.addLocal(camera.getDirection().clone().setZ(0).mult(-backForce));
-		if(!wasOnGround()) force.multLocal(flySpeedFactor);
+		if(!onSurface(Direction.ZPOS)) force.multLocal(flySpeedFactor);
 
 		if(actionsActive.containsKey("Jump")){
-			if(wasOnGround()) {
+			if(onSurface(Direction.ZPOS)) {
 				System.out.print("j");
 				force.addLocal(new Vector3f(0,0,5f).divide(dt));
 			}

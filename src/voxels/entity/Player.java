@@ -1,8 +1,9 @@
 package voxels.entity;
 
-import com.jme3.renderer.*;
-import com.jme3.scene.*;
+public abstract class Player extends Entity {
 
-public interface Player extends Entity {
+	public Player(float collisionHeight, float collisionRadius, float mass) {
+		super(collisionHeight, collisionRadius, mass);
+	}
 	
 }
