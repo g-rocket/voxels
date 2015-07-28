@@ -66,4 +66,7 @@ out
 *.eml
 *.iml
 /*.dylib
+/*.jnilib
+/*.so
+/*.dll
 
