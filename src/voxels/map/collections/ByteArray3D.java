@@ -7,7 +7,6 @@ import voxels.map.*;
 
 public class ByteArray3D implements ChunkData {
     private Coord3 size;
-    @SuppressWarnings("unused")
     private byte data[];
     
     public ByteArray3D(Coord3 size) {
@@ -26,7 +25,6 @@ public class ByteArray3D implements ChunkData {
      */
     @Override
 	public BlockType get(int x, int y, int z) {
-    	//System.out.printf("%b,%d,%d,%d\n",indexWithinBounds(x, y, z),x,y,z);
     	//if(!indexWithinBounds(x, y, z)) throw new IndexOutOfBoundsException(String.format("(%d,%d,%d) is invalid",x,y,z));
         return BlockType.getBlock(data[y*(size.x*size.z) + z*size.x + x]);
     }

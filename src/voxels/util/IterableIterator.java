@@ -1,7 +1,6 @@
 package voxels.util;
 
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.*;
 
 public class IterableIterator<T> implements Iterable<T> {
 	private Iterator<T> i;

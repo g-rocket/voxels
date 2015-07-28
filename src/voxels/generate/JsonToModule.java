@@ -12,32 +12,32 @@ public class JsonToModule {
 	static Pattern somethingType = Pattern.compile("^(Fractal|Basis|Interpolation|Block)Type\\.[A-Z]+$");
 	private JsonObject source;
 	private Map<String, Module> modules = new HashMap<>();
-	private Deque<Map<String, Value>> propogatingVariables = new LinkedList<Map<String, Value>>();
-	private Deque<Map<String, Value>> localonlyVariables = new LinkedList<Map<String, Value>>();
+	private Deque<Map<String, Value>> propagatingVariables = new LinkedList<Map<String, Value>>();
+	private Deque<Map<String, Value>> localOnlyVariables = new LinkedList<Map<String, Value>>();
 	
 	public JsonToModule(Reader rawSource, long seed) {
 		source = new JsonParser().parse(rawSource).getAsJsonObject();
 		Map<String, Value> globals = new HashMap<>();
 		globals.put("seed", new Value(long.class, seed));
-		propogatingVariables.addFirst(globals);
+		propagatingVariables.addFirst(globals);
 	}
 
 	@SuppressWarnings("unchecked") Module parseModule(JsonObject data) {
-		propogatingVariables.addFirst(new HashMap<String, Value>());
+		propagatingVariables.addFirst(new HashMap<String, Value>());
 		String name = data.get("%module").getAsString();
 		if(name.startsWith("@")) {
 			Map<String, Value> newLocals = new HashMap<>();
 			for(Map.Entry<String, JsonElement> e: data.entrySet()) {
 				if(e.getKey().startsWith("#") || e.getKey().startsWith("%")) continue;
 				if(e.getKey().startsWith("$")) {
-					propogatingVariables.getFirst().put(e.getKey().substring(1), Value.parseValue(e.getValue(), this));
+					propagatingVariables.getFirst().put(e.getKey().substring(1), Value.parseValue(e.getValue(), this));
 				} else {
 					newLocals.put(e.getKey(), Value.parseValue(e.getValue(), this));
 				}
 			}
-			localonlyVariables.addFirst(newLocals);
+			localOnlyVariables.addFirst(newLocals);
 			Module m = parseModule(source.getAsJsonObject(name));
-			localonlyVariables.removeFirst();
+			localOnlyVariables.removeFirst();
 			return m;
 		}
 		JsonArray argsData = data.getAsJsonArray("%args"); // might be null?
@@ -65,11 +65,11 @@ public class JsonToModule {
 			String command = e.getKey();
 			if(command.startsWith("#") || command.startsWith("%")) continue;
 			if(command.startsWith("$")) {
-				propogatingVariables.getFirst().put(e.getKey().substring(1), Value.parseValue(e.getValue(), this));
+				propagatingVariables.getFirst().put(e.getKey().substring(1), Value.parseValue(e.getValue(), this));
 				continue;
 			}
-			boolean isCmd = command.startsWith(">");
-			if(!isCmd) {
+			boolean isCommand = command.startsWith(">");
+			if(!isCommand) {
 				command = "set" + command.substring(0, 1).toUpperCase() + command.substring(1);
 			} else {
 				command = command.substring(1);
@@ -96,7 +96,7 @@ public class JsonToModule {
 			} catch(SecurityException ex) {
 				throw new RuntimeException(ex);
 			}
-			if(!isCmd) {
+			if(!isCommand) {
 				commands.add(new Tuple<Method, Object[]>(m, args.values));
 			} else {
 				commands.add(0, new Tuple<Method, Object[]>(m, args.values));
@@ -109,7 +109,7 @@ public class JsonToModule {
 				throw new RuntimeException(e1);
 			}
 		}
-		propogatingVariables.removeFirst();
+		propagatingVariables.removeFirst();
 		return module;
 	}
 	
@@ -123,14 +123,14 @@ public class JsonToModule {
 	}
 	
 	Value getVariable(String varName) {
-		if(!localonlyVariables.isEmpty() && localonlyVariables.getFirst().containsKey(varName)) {
-			return localonlyVariables.getFirst().get(varName);
+		if(!localOnlyVariables.isEmpty() && localOnlyVariables.getFirst().containsKey(varName)) {
+			return localOnlyVariables.getFirst().get(varName);
 		}
-		for(Map<String, Value> scope: propogatingVariables) {
+		for(Map<String, Value> scope: propagatingVariables) {
 			if(scope.containsKey(varName)) return scope.get(varName);
 		}
-		System.out.println(localonlyVariables);
-		System.out.println(propogatingVariables);
+		System.out.println(localOnlyVariables);
+		System.out.println(propagatingVariables);
 		throw new IllegalArgumentException("A variable by the name of "+varName+" does not appear to exist in this context");
 	}
 
@@ -151,7 +151,10 @@ public class JsonToModule {
 
 	public Module getModule(String name) {
 		if(modules.containsKey(name)) return modules.get(name);
-		if(source.get(name) != null) return parseModule(source.getAsJsonObject(name));
+		if(source.get(name) != null) {
+			Module m = parseModule(source.getAsJsonObject(name));
+			return m;
+		}
 		throw new IllegalArgumentException("I've never heard of a module called "+name);
 	}
 }

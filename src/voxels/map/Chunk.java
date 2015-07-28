@@ -76,12 +76,12 @@ public class Chunk extends AbstractControl {
 		}
 	}
 
-	public Iterable<Coord3> blocksPoss() {
+	public Iterable<Coord3> blocksPos() {
 		return Coord3Box.anchorSizeAlignment(position, world.chunkSize, Coord3Box.Alignment.START);
 	}
 	
 	private void buildMesh(boolean doMesh) {
-        MeshSet mset = new MeshSet();
+        MeshSet mSet = new MeshSet();
 		List<Coord3> toMesh = new ListStartedList<>(
 				Coord3Box.anchorSizeAlignment(position, world.chunkSize.times(c3(1,1,0)).plus(c3(0,0,1)), Coord3Box.Alignment.START),
 				Coord3Box.anchorSizeAlignment(position, world.chunkSize.times(c3(1,0,1)).plus(c3(0,1,0)), Coord3Box.Alignment.START),
@@ -100,7 +100,7 @@ public class Chunk extends AbstractControl {
         		BlockType block2 = data.get(blockPos2);
         		if(block.isOpaque) {
         			if(!data.indexWithinBounds(blockPos2) || !block2.isOpaque) {
-        				if(doMesh) BlockMeshUtil.addFaceMeshData(blockPos, block, mset, dir, .5f+(blockPos.z)/256f);
+        				if(doMesh) BlockMeshUtil.addFaceMeshData(blockPos, block, mSet, dir, .5f+(blockPos.z)/256f);
         			}
         		} else {
             		if(data.indexWithinBounds(blockPos2) && !meshed.contains(blockPos2)) {
@@ -112,7 +112,7 @@ public class Chunk extends AbstractControl {
         System.out.print(".");
         if(doMesh) {
         	world.renderExec.execute(() -> {
-        		MeshBuilder.applyMeshSet(mset, getGeometry().getMesh());
+        		MeshBuilder.applyMeshSet(mSet, getGeometry().getMesh());
         		getGeometry().updateModelBound();
         		world.meshUpdateCallback.accept(getGeometry());
         	});

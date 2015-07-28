@@ -37,18 +37,18 @@ class Value {
 			String a = arg.getAsString();
 			Matcher m = JsonToModule.somethingType.matcher(a);
 			if(m.matches()) {
-				String tname = null;
+				String typeName = null;
 				switch(m.group(1)) {
-					case "Fractal": tname = "com.sudoplay.joise.module.ModuleFractal$"; break;
+					case "Fractal": typeName = "com.sudoplay.joise.module.ModuleFractal$"; break;
 					case "Interpolation":
-					case "Basis": tname = "com.sudoplay.joise.module.ModuleBasisFunction$"; break;
+					case "Basis": typeName = "com.sudoplay.joise.module.ModuleBasisFunction$"; break;
 					case "Block": return double.class;
 				}
-				tname += m.group(1)+"Type";
+				typeName += m.group(1)+"Type";
 				try {
-					return Class.forName(tname);
+					return Class.forName(typeName);
 				} catch (ClassNotFoundException ex) {
-					throw new RuntimeException("Type "+tname+" not found", ex);
+					throw new RuntimeException("Type "+typeName+" not found", ex);
 				}
 			}
 			return Module.class;
@@ -72,23 +72,23 @@ class Value {
 		throw new IllegalArgumentException("I don't know how to deal with a "+type.getCanonicalName());
 	}
 	
-	private static final Pattern parensRegex = Pattern.compile("\\(([^)]*)\\)");
-	private static final Pattern expRegex = Pattern.compile("(?:^|[\\s+\\-*\\/^])([^\\s+\\-*\\/^]+)\\s*(\\^)\\s*([^\\s+\\-*\\/^]+)(?:$|[\\s+\\-*\\/^])");
-	private static final Pattern multDivRegex = Pattern.compile("(?:^|[\\s+\\-*\\/^])([^\\s+\\-*\\/^]+)\\s*([*\\/])\\s*([^\\s+\\-*\\/^]+)(?:$|[\\s+\\-*\\/^])");
+	private static final Pattern parenthesesRegex = Pattern.compile("\\(([^)]*)\\)");
+	private static final Pattern exponentRegex = Pattern.compile("(?:^|[\\s+\\-*\\/^])([^\\s+\\-*\\/^]+)\\s*(\\^)\\s*([^\\s+\\-*\\/^]+)(?:$|[\\s+\\-*\\/^])");
+	private static final Pattern multiplyDivideRegex = Pattern.compile("(?:^|[\\s+\\-*\\/^])([^\\s+\\-*\\/^]+)\\s*([*\\/])\\s*([^\\s+\\-*\\/^]+)(?:$|[\\s+\\-*\\/^])");
 	private static final Pattern plusMinusRegex = Pattern.compile("(?:^|[\\s+\\-*\\/^])([^\\s+\\-*\\/^]+)\\s*([+\\-])\\s*([^\\s+\\-*\\/^]+)(?:$|[\\s+\\-*\\/^])");
 	private static Value parseMath(String expr, JsonToModule jtm) {
 		expr = expr.trim();
-		for(Matcher parens = parensRegex.matcher(expr); parens.matches(); parens = parensRegex.matcher(expr)) {
+		for(Matcher parens = parenthesesRegex.matcher(expr); parens.matches(); parens = parenthesesRegex.matcher(expr)) {
 			Value inner = parseMath(parens.group(1), jtm);
 			expr = expr.substring(0, parens.start()) + inner.value + expr.substring(parens.end());
 		}
-		for(Matcher exp = expRegex.matcher(expr); exp.matches(); exp = expRegex.matcher(expr)) {
+		for(Matcher exp = exponentRegex.matcher(expr); exp.matches(); exp = exponentRegex.matcher(expr)) {
 			Value base = parseMath(exp.group(1), jtm);
 			Value exponent = parseMath(exp.group(3), jtm);
 			double result = Math.pow(((Number)base.value).doubleValue(), ((Number)exponent.value).doubleValue());
 			expr = expr.substring(0, exp.start()) + result + expr.substring(exp.end());
 		}
-		for(Matcher md = multDivRegex.matcher(expr); md.matches(); md = multDivRegex.matcher(expr)) {
+		for(Matcher md = multiplyDivideRegex.matcher(expr); md.matches(); md = multiplyDivideRegex.matcher(expr)) {
 			Value base = parseMath(md.group(1), jtm);
 			Value exponent = parseMath(md.group(3), jtm);
 			double result;
@@ -115,7 +115,6 @@ class Value {
 		}
 		return new Value(double.class, Double.parseDouble(expr));
 	}
-
 	
 	public static Value parseValue(JsonElement data, JsonToModule jtm) {
 		if(data.isJsonPrimitive() && data.getAsJsonPrimitive().isString() && data.getAsString().startsWith("$")) {

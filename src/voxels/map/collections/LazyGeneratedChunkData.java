@@ -36,7 +36,7 @@ public class LazyGeneratedChunkData implements ChunkData {
 				StaticUtils.mod(z, size.z));
 		if(block.equals(BlockType.UNKNOWN)) {
 			Coord3 pos = new Coord3(x, y, z);
-			block = generator.getBlockAtPosistion(pos);
+			block = generator.getBlockAtPosition(pos);
 			if(indexWithinBounds(x, y, z)) set(block, pos);
 		}
 		return block;

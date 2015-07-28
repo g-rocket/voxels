@@ -1,9 +1,7 @@
 package voxels.meshconstruction;
 
-import java.awt.*;
 import java.util.*;
 
-import com.google.common.primitives.*;
 import com.jme3.math.*;
 
 import voxels.block.*;

@@ -21,7 +21,7 @@ public class StaticUtils {
 	}
 	
     public static int logb2(int n) { // assumes positive integer power of two
-    	for(int i = 30; i >= 0; i--) {
+    	for(int i = 1; i < n; i<<=1) {
     		if((1 << i) == n) return i;
     	}
     	throw new IllegalArgumentException("i is not a positive integer power of two");

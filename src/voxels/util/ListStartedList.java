@@ -15,9 +15,9 @@ public class ListStartedList<E> extends AbstractList<E> {
 	
 	@Override
 	public int size() {
-		int ssize = 0;
-		for(List<E> s: starters) ssize += s.size();
-		return ssize + backing.size();
+		int startSize = 0;
+		for(List<E> s: starters) startSize += s.size();
+		return startSize + backing.size();
 	}
 
 	@Override

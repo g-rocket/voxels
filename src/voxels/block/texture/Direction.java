@@ -17,7 +17,7 @@ public enum Direction {
 	public final Coord3 c3;
 	
 	public final Vector3f primary;
-	public final Vector3f seccondary;
+	public final Vector3f secondary;
 	public final int sign;
 	
 	private final Vector3f[] cornerOffsets = new Vector3f[4];
@@ -26,7 +26,7 @@ public enum Direction {
 	
 	private final int primaryComponentIndex;
 	
-	private Direction(int primaryComponentIndex, int dx, int dy, int dz, int... cornerdirs) {
+	private Direction(int primaryComponentIndex, int dx, int dy, int dz, int... cornerDirs) {
 		this.dx = dx;
 		this.dy = dy;
 		this.dz = dz;
@@ -38,13 +38,13 @@ public enum Direction {
 		int[] primary = new int[3];
 		primary[primaryComponentIndex] = 1;
 		this.primary = new Vector3f(primary[0], primary[1], primary[2]);
-		this.seccondary = new Vector3f(1-primary[0], 1-primary[1], 1-primary[2]);
+		this.secondary = new Vector3f(1-primary[0], 1-primary[1], 1-primary[2]);
 		sign = (int)getPrimaryComponent(offset);
 		
 		this.c3 = new Coord3(dx, dy, dz);
 		
 		for(int i = 0; i < cornerOffsets.length; i++) {
-			cornerOffsets[i] = new Vector3f((cornerdirs[i*3] + 1)/2, (cornerdirs[i*3 + 1] + 1)/2, (cornerdirs[i*3 + 2] + 1)/2);
+			cornerOffsets[i] = new Vector3f((cornerDirs[i*3] + 1)/2, (cornerDirs[i*3 + 1] + 1)/2, (cornerDirs[i*3 + 2] + 1)/2);
 		}
 	}
 	

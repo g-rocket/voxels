@@ -22,8 +22,8 @@ public class World {
 	private List<Entity> entities = new ArrayList<>();
 	private Vector3f gravity;
 	
-	private float xydamping = 0.2f;
-	private float zdamping = 0.8f;
+	private float xyDamping = 0.2f;
+	private float zDamping = 0.8f;
 
     public void simpleUpdate(float secondsPerFrame) {
     	for(Player p: players) {
@@ -37,7 +37,6 @@ public class World {
      * @param dt The elapsed time in seconds
      */
 	private void updatePhysics(float dt) {
-		Vector3f force = new Vector3f();
 		for(Entity e: entities) {
 			e.applyForce(getForce(e, dt), dt);
 			e.setVelocity(dampVelocity(e.getVelocity(), dt));
@@ -69,8 +68,8 @@ public class World {
 		System.out.println("collided with "+new Coord3(nextLocation)+" at "+intersectionWithBlock);
 		if(intersectionWithBlock != null) {
 			nextLocation = intersectionWithBlock.intersectionPoint();
-			System.out.println("only keeping parts of velocity along"+intersectionWithBlock.face().seccondary);
-			velocity.multLocal(intersectionWithBlock.face().seccondary);
+			System.out.println("only keeping parts of velocity along"+intersectionWithBlock.face().secondary);
+			velocity.multLocal(intersectionWithBlock.face().secondary);
 			System.out.println("new velocity: "+velocity);
 			e.setVelocity(velocity);
 			e.setOnSurface(intersectionWithBlock.face(), true);
@@ -110,14 +109,14 @@ public class World {
 				e.setOnSurface(surface, false);
 			} else if(motionTowardsSurface < 0 && e.onSurface(surface)) {
 				// don't move into a block
-				force.multLocal(surface.seccondary);
+				force.multLocal(surface.secondary);
 			}
 		}
 		return force;
 	}
 	
 	private Vector3f dampVelocity(Vector3f velocity, float dt) {
-		Vector3f damping = ZPOS.primary.mult(FastMath.pow(zdamping, dt)).addLocal(ZPOS.seccondary.mult(FastMath.pow(xydamping, dt)));
+		Vector3f damping = ZPOS.primary.mult(FastMath.pow(zDamping, dt)).addLocal(ZPOS.secondary.mult(FastMath.pow(xyDamping, dt)));
 		return velocity.mult(damping);
 	}
 	
